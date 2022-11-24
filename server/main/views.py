@@ -27,6 +27,7 @@ def authorize_by_request(request):
     user = authenticate(request,username=credentials[0],password=credentials[1])
     if user is not None:
         login(request, user)
+        return user
     else:
         return HttpResponse(status=401)
 
@@ -35,7 +36,7 @@ def get_courses(request):
     return JsonResponse(courses, safe = False)
 
 def get_logged_user(request):
-    authorize_by_request(request=request)
+    user = authorize_by_request(request=request)
     person_instance = list(Person.objects.filter(user=request.user).values())[0]
     return JsonResponse(person_instance, safe = False)
 

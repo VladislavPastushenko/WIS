@@ -4,35 +4,6 @@ from django.conf import settings
 
 # Create your models here.
 
-class Course(models.Model):
-    id_course = models.IntegerField(primary_key=True) # basically IntegerField but with autoincrementation so after all Primary Key
-    abbrv = models.CharField(max_length = 5)    
-    title = models.TextField(blank = True)
-    description = models.TextField(blank=False)
-    credits = models.IntegerField()
-    fakulta = models.CharField(max_length = 4)
-    # max_persons = models.IntegerField()
-    SEMESTR = (
-        ('w', 'Winter'),  # Winter time
-        ('s', 'Summer'),  # Summer time
-    )
-    type = models.CharField(
-        max_length=1,
-        choices=SEMESTR,
-        default='w',  # By default will be winter time
-    )
-    def get_absolute_url(self):
-        return f"{self.id_course}"
-
-    def __str__(self):
-        """String for representing the MyModelName object (in Admin site etc.)."""
-        return self.id_course
-
-
-
-
-
-
 class Person(models.Model):
     id_person = models.AutoField(primary_key=True)
     firstname = models.CharField(max_length=50, blank=False)
@@ -41,7 +12,6 @@ class Person(models.Model):
     telephone = models.CharField(max_length=25, blank=False)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
     email = models.CharField(max_length=32, unique=True, blank=True, null=True)
-    courses = models.ManyToManyField(Course)
 
     ROLES = (
         ('a', 'administrator'),
@@ -83,44 +53,74 @@ class Person(models.Model):
             raise PermissionDenied()
 
 
+class Course(models.Model):
+    id_course = models.IntegerField(primary_key=True) # basically IntegerField but with autoincrementation so after all Primary Key
+    abbrv = models.CharField(max_length = 5)    
+    title = models.TextField(blank = True)
+    description = models.TextField(blank=False)
+    credits = models.IntegerField(default=5)
+    garant_id = models.ForeignKey(Person, models.DO_NOTHING, db_column='id_person', default=None)
+    max_persons = models.IntegerField(default=100)
+    approved = models.BooleanField(default=False)
+
+    SEMESTR = (
+        ('w', 'Winter'),  # Winter time
+        ('s', 'Summer'),  # Summer time
+    )
+    type = models.CharField(
+        max_length=1,
+        choices=SEMESTR,
+        default='w',  # By default will be winter time
+    )
+    def get_absolute_url(self):
+        return f"{self.id_course}"
+
+    def __str__(self):
+        """String for representing the MyModelName object (in Admin site etc.)."""
+        return self.id_course
+
+
+class Teacher_Course(models.Model):
+    id_teacher = models.ForeignKey(Person, models.DO_NOTHING, db_column='id_person')
+    id_course = models.ForeignKey(Course, models.DO_NOTHING, db_column='id_course')
+    class Meta:
+        unique_together = (('id_teacher', 'id_course'),)
+
+class Student_Course(models.Model):
+    id_student = models.OneToOneField(Person, models.DO_NOTHING, db_column='id_person')
+    id_course = models.ForeignKey(Course, models.DO_NOTHING, db_column='id_course')
+    class Meta:
+        unique_together = (('id_student', 'id_course'),)
+
+class Classrooms(models.Model):
+    id_classroom = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=50, blank=False)
+
+
 class Termin(models.Model):
-    # id_student = models.ForeignKey(Person, on_delete=models.CASCADE)
-    # id_course = models.ForeignKey(Course, on_delete=models.CASCADE, primary_key=True)
-    # name = models.CharField(max_length=50, blank=False)
-    # TYPES = (
-    #     ('l', 'lecture'),
-    #     ('c', 'cviceni'),
-    #     ('z', 'exam'),
-    #     ('p', 'project'),
-    #     ('h', 'homework')
-    # )
-    # type = models.CharField(
-    #     max_length=1,
-    #     choices=TYPES,
-    #     blank=False,
-    #     default='l'
-    # )
-    # hodnoceni = models.IntegerField()
-    pass
+    id_termin = models.IntegerField(primary_key=True) # basically IntegerField but with autoincrementation so after all Primary Key
+    id_course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    id_classroom = models.ForeignKey(Classrooms, on_delete=models.CASCADE, default=None)
+    name = models.CharField(max_length=50, blank=False)
+    TYPES = (
+        ('l', 'lecture'),
+        ('c', 'cviceni'),
+        ('z', 'exam'),
+        ('p', 'project'),
+        ('h', 'homework')
+    )
+    type = models.CharField(
+        max_length=1,
+        choices=TYPES,
+        blank=False,
+        default='l'
+    )
 
-# class Hodnoceni(models.model):
-    # id_student = models.ForeignKey(Person, on_delete=models.CASCADE)
-    # id_course = models.ForeignKey(Course, on_delete=models.CASCADE, primary_key=True)
-    # hodnoceni = models.IntegerField()
+class User_Termin(models.Model):
+    id_student = models.ForeignKey(Person, models.DO_NOTHING, db_column='id_person')
+    id_termin = models.ForeignKey(Termin, models.DO_NOTHING, db_column='id_termin')
+    points = models.IntegerField()
+    class Meta:
+        unique_together = (('id_student', 'id_termin'),)
 
-# class Unconfirmed_Course(models.Model):
-#     id_course = models.IntegerField(primary_key=True) # basically IntegerField but with autoincrementation so after all Primary Key
-#     abbrv = models.CharField(max_length = 5)    
-#     title = models.TextField(blank = True)
-#     description = models.TextField(blank=False)
-#     credits = models.IntegerField()
-#     fakulta = models.CharField(max_length = 4)
-#     SEMESTR = (
-#         ('w', 'Winter'),  # Winter time
-#         ('s', 'Summer'),  # Summer time
-#     )
-#     type = models.CharField(
-#         max_length=1,
-#         choices=SEMESTR,
-#         default='w',  # By default will be winter time
-#     )
+
