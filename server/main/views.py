@@ -63,6 +63,30 @@ def register_user(request):
         except:
             return HttpResponse(status=500)
 
+
+@login_required
+def profile_edit(request, id):
+    if request.method == 'POST':
+        try:
+            person_instance = Person.objects.filter(id_person=id).first()
+            json_data = json.loads(request.body)
+
+            firstname = json_data['firstname'] if json_data['firstname'] != '' else person_instance.firstname
+            surname = json_data['surname'] if json_data['surname'] != '' else person_instance.surname
+            address = json_data['address'] if json_data['address'] != '' else person_instance.address
+            email = json_data['email'] if json_data['email'] != '' else person_instance.email
+            telephone = json_data['telephone'] if json_data['telephone'] != '' else person_instance.telephone
+
+
+            Person.objects.filter(id_person=person_instance.id_person).update(firstname=firstname,
+                                                                              surname=surname,
+                                                                              address=address,
+                                                                              telephone=telephone,
+                                                                              email=email)
+            return HttpResponse('ok')
+        except:
+            return HttpResponse(status=500)
+
 @csrf_exempt
 def login_user(request):
     if request.method == 'POST':
@@ -251,42 +275,7 @@ def user_update(request, id):
     }
     return render(request, 'admin_user_update.html', context)
 
-@login_required
-def profile_edit(request):
-    person_instance = Person.objects.filter(user=request.user).first()
-    if request.method == 'POST':
-        person_instance = Person.objects.filter(user=request.user).first()
 
-        form = EditProfileForm(request.POST or None)
-
-        if form.is_valid():
-            firstname = form.cleaned_data['firstname'] if form.cleaned_data['firstname'] != '' else person_instance.firstname
-            surname = form.cleaned_data['surname'] if form.cleaned_data['surname'] != '' else person_instance.surname
-            address = form.cleaned_data['address'] if form.cleaned_data['address'] != '' else person_instance.address
-            email = form.cleaned_data['email'] if form.cleaned_data['email'] != '' else person_instance.email
-            telephone = form.cleaned_data['telephone'] if form.cleaned_data['telephone'] != '' else person_instance.telephone
-
-            Person.objects.filter(id_person=person_instance.id_person).update(firstname=firstname,
-                                                                              surname=surname,
-                                                                              address=address,
-                                                                              telephone=telephone,
-                                                                              email=email)
-
-            person_instance = Person.objects.filter(user=request.user).first()
-            return redirect('/profile')
-
-
-    else:
-        form = EditProfileForm()
-
-    context = {
-        'form': form,
-        'user_profile': request.user,
-        'person': person_instance,
-
-    }
-
-    return render(request, 'profile_edit.html', context)
 
 
 @login_required

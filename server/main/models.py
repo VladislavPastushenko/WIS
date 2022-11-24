@@ -122,5 +122,3 @@ class User_Termin(models.Model):
     points = models.IntegerField()
     class Meta:
         unique_together = (('id_student', 'id_termin'),)
-
-
