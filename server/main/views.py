@@ -152,7 +152,7 @@ def courses_view(request, id):
         "course_abbrv" : course.abbrv,
         "course_title" : course.title,
         "is_register" : is_register,
-        'person' : person_instance,
+        #'person' : person_instance,
     }
 
     return render(request, 'course_detail.html', context)
@@ -326,3 +326,39 @@ def students_view(request, id):
         }
 
     return render(request, 'list_of_students.html', context)
+
+
+
+def create_course(request):
+    if request.method == 'POST':
+        try:
+            json_data = json.loads(request.body)
+
+
+            abbrv = json_data['abbrv']  
+            title = json_data['title']  
+            description = json_data['description']  
+            credits = json_data['credits']  
+            max_persons = json_data['max_persons']  
+
+
+            try:
+                Course.objects.create(abbrv = abbrv,title = title,description = description,credits = credits,max_persons = max_persons)
+            except:
+                print("error create course")    
+
+            return HttpResponse('ok')
+
+        except:
+            return HttpResponse(status=500)
+
+
+#@login_required
+def get_course_user(request,id):
+    if request.user.is_authenticated:
+        student_course = list(Student_Course.objects.filter(id_student = id).values())
+        
+        return JsonResponse(student_course, safe = False)
+    else:
+        return HttpResponse(status=500)
+    
