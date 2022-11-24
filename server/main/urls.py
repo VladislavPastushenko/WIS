@@ -32,7 +32,13 @@ urlpatterns = [
     path('student_list/<int:id>', views.students_view, name='student_list'),
 
     path('get-courses', views.get_courses, name='get_courses'),
+    path('get-all-users/', views.get_users, name='get-all-users'),
+    path('get-course-by-id/<int:id>', views.get_course_by_id, name='get_course-by-id'),
     path('get-logged-user', views.get_logged_user, name='get_logged_user'),
+
+
+    path('add-user-to-course/<int:id_person>/<int:id_course>', views.add_user_to_course, name='add-user-to-course'),
+    path('remove-user-from-course/<int:id_person>/<int:id_course>', views.remote_user_from_course, name='remove-user-from-course'),
 ]
 
 handler404 = "main.views.page404"

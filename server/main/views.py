@@ -35,6 +35,19 @@ def get_courses(request):
     courses = list(Course.objects.values())
     return JsonResponse(courses, safe = False)
 
+def get_users(request):
+    role = request.GET.get('role')
+    print('Role is'+ role)
+    if role != None:
+        users = list(Person.objects.filter(role=role).values())
+    else:
+        users = list(Person.objects.values())
+    return JsonResponse(users, safe = False)
+
+def get_course_by_id(request, id):
+    course = Course.objects.filter(id_course=id).values()[0]
+    return JsonResponse(course, safe = False)
+
 def get_logged_user(request):
     user = authorize_by_request(request=request)
     person_instance = list(Person.objects.filter(user=request.user).values())[0]
@@ -54,7 +67,7 @@ def register_user(request):
             password = json_data['password']
 
             user_instance = User.objects.create_user(username=username, email=email, password=password)
-            user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='v')
+            user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='s')
 
             if user is not None:
                 return HttpResponse('ok')
@@ -64,25 +77,61 @@ def register_user(request):
             return HttpResponse(status=500)
 
 
-@login_required
 def profile_edit(request, id):
     if request.method == 'POST':
         try:
             person_instance = Person.objects.filter(id_person=id).first()
             json_data = json.loads(request.body)
 
-            firstname = json_data['firstname'] if json_data['firstname'] != '' else person_instance.firstname
-            surname = json_data['surname'] if json_data['surname'] != '' else person_instance.surname
-            address = json_data['address'] if json_data['address'] != '' else person_instance.address
-            email = json_data['email'] if json_data['email'] != '' else person_instance.email
-            telephone = json_data['telephone'] if json_data['telephone'] != '' else person_instance.telephone
+            firstname = json_data.get('firstname') if json_data.get('firstname') != None else person_instance.firstname
+            surname = json_data.get('surname') if json_data.get('surname') != None else person_instance.surname
+            address = json_data.get('address') if json_data.get('address') != None else person_instance.address
+            email = json_data.get('email') if json_data.get('email') != None else person_instance.email
+            telephone = json_data.get('telephone') if json_data.get('telephone') != None else person_instance.telephone
+            role = json_data.get('role') if json_data.get('role') != None else person_instance.role
 
+            active_person = Person.objects.filter(user=request.user).first()
+            if role != None and active_person.is_admin == False:
+                return HttpResponse(status=500)
+            elif active_person.is_admin == False and person_instance.id_person != active_person.id_person:
+                return HttpResponse(status=500)
 
             Person.objects.filter(id_person=person_instance.id_person).update(firstname=firstname,
                                                                               surname=surname,
                                                                               address=address,
                                                                               telephone=telephone,
-                                                                              email=email)
+                                                                              email=email,role=role)
+            return HttpResponse('ok')
+        except:
+            return HttpResponse(status=500)
+
+
+def course_edit(request, id):
+    if request.method == 'POST':
+        try:
+            person_instance = Person.objects.filter(user=request.user).first()
+            if person_instance.is_garant == False:
+                return HttpResponse(status=500)
+
+            course_instance = Course.objects.filter(id_course=id).first()
+            json_data = json.loads(request.body)
+
+            abbrv = json_data.get('abbrv') if json_data.get('abbrv') != None else course_instance.abbrv
+            title = json_data.get('title') if json_data.get('title') != None else course_instance.title
+            description = json_data.get('description') if json_data.get('description') != None else course_instance.description
+            credits = json_data.get('credits') if json_data.get('credits') != None else course_instance.credits
+            max_persons = json_data.get('max_persons') if json_data.get('max_persons') != None else course_instance.max_persons
+            approved = json_data.get('approved') if json_data.get('approved') != None else course_instance.approved
+            type = json_data.get('type') if json_data.get('type') != None else course_instance.type
+
+
+            Course.objects.filter(id_course=course_instance.id_course).update(abbrv=abbrv,
+                                                                              title=title,
+                                                                              description=description,
+                                                                              max_persons=max_persons,
+                                                                              credits=credits,
+                                                                              approved=approved, 
+                                                                              type=type)
             return HttpResponse('ok')
         except:
             return HttpResponse(status=500)
@@ -321,18 +370,26 @@ def students_view(request, id):
 def create_course(request):
     if request.method == 'POST':
         try:
-            json_data = json.loads(request.body)
+            active_person = Person.objects.filter(user=request.user).first()
+            if active_person.is_garant == False:
+                return HttpResponse(status=500)
 
+            json_data = json.loads(request.body)
 
             abbrv = json_data['abbrv']  
             title = json_data['title']  
             description = json_data['description']  
             credits = json_data['credits']  
             max_persons = json_data['max_persons']  
+            garant = json_data['username'] 
 
+            user_instance = User.objects.filter(username=garant).first()
+            person_instance = Person.objects.filter(user=user_instance).first()
 
             try:
-                Course.objects.create(abbrv = abbrv,title = title,description = description,credits = credits,max_persons = max_persons)
+                Course.objects.create(abbrv=abbrv,title=title,description=description,
+                                        credits=credits,max_persons=max_persons,
+                                        garant_id=person_instance,approved=0)
             except:
                 print("error create course")    
 
@@ -346,8 +403,25 @@ def create_course(request):
 def get_course_user(request,id):
     if request.user.is_authenticated:
         student_course = list(Student_Course.objects.filter(id_student = id).values())
-        
-        return JsonResponse(student_course, safe = False)
+        course_list = list()
+        for item in student_course:
+            course = Course.objects.filter(id_course = item['id_course_id']).values()[0]
+            course_list.append(course)
+        return JsonResponse(course_list, safe = False)
     else:
-        return HttpResponse(status=500)
-    
+       return HttpResponse(status=500)
+
+
+def add_user_to_course(request, id_person, id_course):
+    if request.method == 'POST':
+        course = Course.objects.filter(id_course=id_course).first()
+        person = Person.objects.filter(id_person=id_person).first()
+        Student_Course.objects.create(id_student=person, id_course=course)
+        return HttpResponse('ok')
+
+def remote_user_from_course(request, id_person, id_course):
+    if request.method == 'POST':
+        course = Course.objects.filter(id_course=id_course).first()
+        person = Person.objects.filter(id_person=id_person).first()
+        Student_Course.objects.filter(id_student=person,id_course=course).delete()
+        return HttpResponse('ok')

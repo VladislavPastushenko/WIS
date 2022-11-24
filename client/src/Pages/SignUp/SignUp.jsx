@@ -11,9 +11,9 @@ const SignUp = () => {
         if (e.target.password.value === e.target.passwordRepeat.value) {
             const data = {
                 username: e.target.username.value,
-                firstName: e.target.username.value,
-                lastName: e.target.username.value,
-                email: e.target.username.value,
+                firstName: e.target.firstName.value,
+                lastName: e.target.lastName.value,
+                email: e.target.email.value,
                 password: e.target.password.value,
             }
 

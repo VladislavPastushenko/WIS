@@ -36,21 +36,21 @@ class Person(models.Model):
 
     def is_admin(self):
         if self.role == 'a':
-            pass
+            return True
         else:
-            raise PermissionDenied()
+            return False
 
     def is_garant(self):
         if self.role == 'g' or self.role == 'a':
-            pass
+            return True
         else:
-            raise PermissionDenied()
+            return False
 
     def is_lektor(self):
         if self.role == 'l' or self.role == 'a' or self.role == 'g':
-            pass
+            return True
         else:
-            raise PermissionDenied()
+            return False
 
 
 class Course(models.Model):
