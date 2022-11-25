@@ -85,10 +85,10 @@ WSGI_APPLICATION = 'wis.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'IIS_projekt',
-        'USER': 'xkniaz00',
+        'NAME': 'IIS_wis',
+        'USER': 'root',
         'PASSWORD': '1234',
-        'HOST': '34.122.99.99',   # Or an IP Address that your DB is hosted on
+        'HOST': '34.118.84.22',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 }
