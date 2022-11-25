@@ -474,3 +474,45 @@ def remote_user_from_course(request, id_person, id_course):
         for item in termins:
             User_Termin.objects.filter(id_student=person, id_termin=item['id_termin']).delete()
         return HttpResponse('ok')
+    
+def remove_user(request,id_persone):
+    User.objects.filter(id_persone=id_persone).delete()
+    Person.objects.filter(id_persone=id_persone).delete()
+    return HttpResponse('ok')
+ 
+def remove_course(request,id_course):
+    Course.objects.filter(id_course=id_course).delete()
+    return HttpResponse('ok')   
+
+
+def update_termin(request,id_termin):
+    if request.method == 'POST':
+        try:
+            json_data = json.loads(request.body)
+
+            name = json_data['name']  
+            repeted = json_data['repeted']  
+            time_start = json_data['time_start']  
+            time_end = json_data['time_end']  
+            date = json_data['date']  
+            weekday = json_data['weekday'] 
+            max_points = json_data['max_points'] 
+            classroom = json_data['classroom'] 
+            type = json_data['type']
+            description = json_data['description']
+            
+            
+            classroom_instance = Classrooms.objects.filter(name=classroom).first()
+
+            try:
+                Termin.objects.filter(id_termin=id_termin).update(name=name,repeted=repeted,time_start=time_start,
+                                            time_end=time_end,date=date,
+                                            weekday=weekday,max_points=max_points,
+                                            type=type,id_classroom=classroom_instance, description=description)
+            except:
+                print("Error update termin")
+            
+            return HttpResponse('ok')
+
+        except:
+            return HttpResponse(status=500)

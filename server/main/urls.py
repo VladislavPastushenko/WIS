@@ -38,6 +38,13 @@ urlpatterns = [
 
     path('add-user-to-course/<int:id_person>/<int:id_course>', views.add_user_to_course, name='add-user-to-course'),
     path('remove-user-from-course/<int:id_person>/<int:id_course>', views.remote_user_from_course, name='remove-user-from-course'),
+    
+    
+    path('remove-user/<int:id>',views.remove_user,name='remove-user'),
+    path('remove-course/<int:id>',views.remove_course,name='remove-course'),
+    
+    path('update-termin/<int:id>',views.update_termin,name='update_termin'),
+    
 ]
 
 handler404 = "main.views.page404"
