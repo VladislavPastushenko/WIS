@@ -37,7 +37,6 @@ def get_courses(request):
 
 def get_users(request):
     role = request.GET.get('role')
-    print('Role is'+ role)
     if role != None:
         users = list(Person.objects.filter(role=role).values())
     else:
@@ -49,7 +48,7 @@ def get_course_by_id(request, id):
     return JsonResponse(course, safe = False)
 
 def get_logged_user(request):
-    user = authorize_by_request(request=request)
+    #user = authorize_by_request(request=request)
     person_instance = list(Person.objects.filter(user=request.user).values())[0]
     return JsonResponse(person_instance, safe = False)
 
@@ -67,7 +66,7 @@ def register_user(request):
             password = json_data['password']
 
             user_instance = User.objects.create_user(username=username, email=email, password=password)
-            user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='s')
+            user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='g')
 
             if user is not None:
                 return HttpResponse('ok')
@@ -346,26 +345,69 @@ def garant_view(request):
     return render(request, 'garant_view.html', context)
 
 
-@login_required
-def students_view(request, id):
-    if request.user.is_authenticated:
-        person_instance = Person.objects.filter(user=request.user).first()
-        if person_instance.role != 'g':
-            return redirect('/access_failed')
-            raise Http404
-        course = Course.objects.filter(id_course=id).first()
-        students = Person.objects.filter(courses=course).all()
-    else:
-        raise Http404
-    context = {
-            "person": person_instance,
-            'courses' : course,
-            'students' : students
-        }
+def create_termin(request, id):
+    if request.method == 'POST':
+        try:
+            active_person = Person.objects.filter(user=request.user).first()
+            if active_person.is_garant == False:
+                return HttpResponse(status=500)
 
-    return render(request, 'list_of_students.html', context)
+            json_data = json.loads(request.body)
 
+            name = json_data['name']  
+            repeted = json_data['repeted']  
+            time_start = json_data['time_start']  
+            time_end = json_data['time_end']  
+            date = json_data['date']  
+            weekday = json_data['weekday'] 
+            max_points = json_data['max_points'] 
+            classroom = json_data['classroom'] 
+            type = json_data['type']
+            description = json_data['description']
 
+            classroom_instance = Classrooms.objects.filter(name=classroom).first()
+            course_instance = Course.objects.filter(id_course=id).first()
+
+            try:
+                Termin.objects.create(name=name,repeted=repeted,time_start=time_start,
+                                        time_end=time_end,date=date,
+                                        weekday=weekday,max_points=max_points,
+                                        type=type, id_course=course_instance,
+                                        id_classroom=classroom_instance, description=description)
+            except:
+                print("error create course")    
+
+            return HttpResponse('ok')
+
+        except:
+            return HttpResponse(status=500)
+
+def get_termins_by_course_id(request, id):
+    course_instance = Course.objects.filter(id_course=id).first()
+    termins = list(Termin.objects.filter(id_course=course_instance).values())
+    return JsonResponse(termins, safe = False)
+
+def get_points_for_all_termins(request, id_person, id_course):
+    course_instance = Course.objects.filter(id_course=id_course).first()
+    termins = list(Termin.objects.filter(id_course=course_instance).values())
+    person_instance = Person.objects.filter(id_person=id_person)
+    termin_points = list()
+    for item in termins:
+        termin = User_Termin.objects.filter(id_student=id_person,id_termin = item['id_termin']).values()[0]
+        item.update({'points' : termin.get('points')})
+        termin_points.append(item)
+    return JsonResponse(termin_points, safe = False)
+
+def points_of_termin(request, id):
+    termin_instance = Termin.objects.filter(id_termin=id).first()
+    user_termin = list(User_Termin.objects.filter(id_termin=id).values())
+
+    person_points = list()
+    for item in user_termin:
+        person_instance = Person.objects.filter(id_person=item['id_student_id']).values()[0]
+        person_instance.update({'points' : item['points']})
+        person_points.append(person_instance)
+    return JsonResponse(person_points, safe = False)
 
 def create_course(request):
     if request.method == 'POST':
@@ -413,15 +455,22 @@ def get_course_user(request,id):
 
 
 def add_user_to_course(request, id_person, id_course):
-    if request.method == 'POST':
+    # if request.method == 'POST':
         course = Course.objects.filter(id_course=id_course).first()
         person = Person.objects.filter(id_person=id_person).first()
         Student_Course.objects.create(id_student=person, id_course=course)
+        termins = list(Termin.objects.filter(id_course=course).values())
+        for item in termins:
+            termin = Termin.objects.filter(id_termin=item['id_termin']).first()
+            User_Termin.objects.create(id_student=person, id_termin=termin, points=0)
         return HttpResponse('ok')
 
 def remote_user_from_course(request, id_person, id_course):
-    if request.method == 'POST':
+    # if request.method == 'POST':
         course = Course.objects.filter(id_course=id_course).first()
         person = Person.objects.filter(id_person=id_person).first()
         Student_Course.objects.filter(id_student=person,id_course=course).delete()
+        termins = list(Termin.objects.filter(id_course=course).values())
+        for item in termins:
+            User_Termin.objects.filter(id_student=person, id_termin=item['id_termin']).delete()
         return HttpResponse('ok')

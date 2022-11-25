@@ -54,7 +54,7 @@ class Person(models.Model):
 
 
 class Course(models.Model):
-    id_course = models.IntegerField(primary_key=True) # basically IntegerField but with autoincrementation so after all Primary Key
+    id_course = models.AutoField(primary_key=True) # basically IntegerField but with autoincrementation so after all Primary Key
     abbrv = models.CharField(max_length = 5)    
     title = models.TextField(blank = True)
     description = models.TextField(blank=False)
@@ -87,21 +87,29 @@ class Teacher_Course(models.Model):
         unique_together = (('id_teacher', 'id_course'),)
 
 class Student_Course(models.Model):
-    id_student = models.OneToOneField(Person, models.DO_NOTHING, db_column='id_person')
+    id_student = models.ForeignKey(Person, models.DO_NOTHING, db_column='id_person')
     id_course = models.ForeignKey(Course, models.DO_NOTHING, db_column='id_course')
     class Meta:
         unique_together = (('id_student', 'id_course'),)
 
 class Classrooms(models.Model):
-    id_classroom = models.IntegerField(primary_key=True)
+    id_classroom = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, blank=False)
 
 
 class Termin(models.Model):
-    id_termin = models.IntegerField(primary_key=True) # basically IntegerField but with autoincrementation so after all Primary Key
+    id_termin = models.AutoField(primary_key=True) # basically IntegerField but with autoincrementation so after all Primary Key
     id_course = models.ForeignKey(Course, on_delete=models.CASCADE)
     id_classroom = models.ForeignKey(Classrooms, on_delete=models.CASCADE, default=None)
     name = models.CharField(max_length=50, blank=False)
+    repeted = models.BooleanField(default=False)
+    time_start = models.TimeField(blank=False, default=None)
+    time_end = models.TimeField(blank=False, default=None)
+    date = models.DateField(default=None)
+    weekday = models.CharField(max_length=10, default=None)
+    max_points = models.IntegerField(default=None)
+    description = models.CharField(max_length=100, default=None)
+
     TYPES = (
         ('l', 'lecture'),
         ('c', 'cviceni'),
