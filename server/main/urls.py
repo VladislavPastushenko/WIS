@@ -23,22 +23,35 @@ urlpatterns = [
     path('user_update/<int:id>', views.user_update, name='user_update'),
     path('user_delete/<int:id>', views.user_delete, name='user_delete'),
     
-    
+    path('create-termin', views.create_termin, name='create-termin'),
+    path('get-termins-by-course-id/<int:id>', views.get_termins_by_course_id, name='get-termins-by-course-id'),
+    path('get-points-for-all-termins/<int:id_person>/<int:id_course>', views.get_points_for_all_termins, name='get-points-for-all-termins'),
+    path('points-of-termin/<int:id>', views.points_of_termin, name='points-of-termin'),
+
     path('create-course',views.create_course, name='create_course'),
-    
-    path('get-courses-by-user-id/<int:id>',views.get_course_user,name='get_course_user'),
+    path('get-courses-by-user-id/<int:id>',views.get_course_user,name='get-course-user'),
+    path('get-courses', views.get_courses, name='get-courses'),
 
-    path('garant_view', views.garant_view, name='garant_view'),
-    path('student_list/<int:id>', views.students_view, name='student_list'),
-
-    path('get-courses', views.get_courses, name='get_courses'),
     path('get-all-users/', views.get_users, name='get-all-users'),
-    path('get-course-by-id/<int:id>', views.get_course_by_id, name='get_course-by-id'),
-    path('get-logged-user', views.get_logged_user, name='get_logged_user'),
-
+    path('get-course-by-id/<int:id>', views.get_course_by_id, name='get-course-by-id'),
+    path('get-logged-user', views.get_logged_user, name='get-logged-user'),
 
     path('add-user-to-course/<int:id_person>/<int:id_course>', views.add_user_to_course, name='add-user-to-course'),
     path('remove-user-from-course/<int:id_person>/<int:id_course>', views.remote_user_from_course, name='remove-user-from-course'),
+    
+    
+    path('remove-user/<int:id_persone>',views.remove_user,name='remove-user'),
+    path('remove-course/<int:id_course>',views.remove_course,name='remove-course'),
+    path('update-termin/<int:id_termin>',views.update_termin,name='update_termin'),
+    
+    #room path
+    path('add-room',views.add_room,name='add-room'),
+    path('delete-room/<int:id_room>',views.delete_room,name='delete-room'),
+    
+    #check room in time
+    path('add-lector-to-course',views.add_lector_to_course,name='add-lector-to-course'),
+    
+    
 ]
 
 handler404 = "main.views.page404"

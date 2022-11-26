@@ -87,9 +87,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql', 
         'NAME': 'IIS_wis',
         'USER': 'root',
-        'PASSWORD': '1234',
-        'HOST': '34.118.84.22',   # Or an IP Address that your DB is hosted on
+        'PASSWORD': '4321',
+        'HOST': '35.239.217.72',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode = 'STRICT_TRANS_TABLES';",
+        }
     }
 }
 
@@ -140,3 +143,6 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 CSRF_COOKIE_SECURE = False
 CSRF_TRUSTED_ORIGINS = ['http://localhost:3000',]
+
+
+DEFAULT_AUTO_FIELD ='django.db.models.AutoField'

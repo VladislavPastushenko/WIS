@@ -43,3 +43,5 @@ class EditProfileForm(forms.Form):
 
 class UpdateUser(forms.Form):
     role = forms.CharField(max_length=1, required=False)
+    
+    
