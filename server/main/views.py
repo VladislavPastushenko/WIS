@@ -50,9 +50,9 @@ def get_course_by_id(request, id):
     return JsonResponse(course, safe = False)
 
 def get_logged_user(request):
-    #user = authorize_by_request(request=request)
+    user = authorize_by_request(request=request)
     person_instance = list(Person.objects.filter(user=request.user).values())[0]
-    return JsonResponse(person_instance, safe = False)
+    return JsonResponse({**person_instance, 'username': user.get_username()}, safe = False)
 
 
 @csrf_exempt
@@ -69,7 +69,7 @@ def register_user(request):
 
 
             user_instance = User.objects.create_user(username=username, email=email, password=password)
-            user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='g')
+            user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='s')
 
             print(username)
             if user is not None:
@@ -79,9 +79,10 @@ def register_user(request):
         except:
             return HttpResponse(status=500)
 
-
+@csrf_exempt
 def profile_edit(request, id):
     if request.method == 'POST':
+        user = authorize_by_request(request=request)
         try:
             person_instance = Person.objects.filter(id_person=id).first()
             json_data = json.loads(request.body)
@@ -305,28 +306,6 @@ def user_delete(request, id):
         'person': person_instance,
     }
     return render(request, 'admin_user_delete.html', context)
-    
-
-def user_update(request, id):
-    person_instance = Person.objects.filter(id_person=id).first()
-    if request.method == 'POST':
-        person_instance = Person.objects.filter(id_person=id).first()
-
-        form = UpdateUser(request.POST or None)
-        if form.is_valid():
-            role = form.cleaned_data['role'] if form.cleaned_data['role'] != '' else person_instance.role
-            Person.objects.filter(id_person=person_instance.id_person).update(role=role)
-            person_instance = Person.objects.filter(id_person=id).first()
-            return redirect('/admin_view')
-    else:
-        form = UpdateUser()    
-
-    context = {
-        'form' : form,
-        'person': person_instance,
-    }
-    return render(request, 'admin_user_update.html', context)
-
 
 
 

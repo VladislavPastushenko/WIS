@@ -25,7 +25,7 @@ export default function App() {
           setLoggedUser({...res, token: localStorage.getItem('token')})
       })
       .catch(err => {
-          console.err(err)
+          console.error(err)
       })
   },
   [])

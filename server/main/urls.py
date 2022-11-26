@@ -17,12 +17,10 @@ urlpatterns = [
     path('study', views.study_view, name='study'),
     path('logged', views.logged_view, name='loggend_on'),
     path('profile', views.profile_view, name='profile'),
-    path('profile_edit', views.profile_edit, name='profile_edit'),
+    path('profile_edit/<int:id>', views.profile_edit, name='profile_edit'),
     path('<int:id>', views.courses_view, name='courses-view'),
     path('admin_view', views.admin_view, name='admin_view'),
-    path('user_update/<int:id>', views.user_update, name='user_update'),
     path('user_delete/<int:id>', views.user_delete, name='user_delete'),
-    
     path('create-termin', views.create_termin, name='create-termin'),
     path('get-termins-by-course-id/<int:id>', views.get_termins_by_course_id, name='get-termins-by-course-id'),
     path('get-points-for-all-termins/<int:id_person>/<int:id_course>', views.get_points_for_all_termins, name='get-points-for-all-termins'),
