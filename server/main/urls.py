@@ -47,7 +47,9 @@ urlpatterns = [
     #room path
     path('add-room',views.add_room,name='add-room'),
     path('delete-room/<int:id_room>',views.delete_room,name='delete-room'),
-    path('update-room',views.add_room,name='add-room'),
+    
+    #check room in time
+    
     
     
     

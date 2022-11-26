@@ -349,6 +349,19 @@ def garant_view(request):
     return render(request, 'garant_view.html', context)
 
 
+
+def check_room_time(classroom,time_start,time_end):
+    termins = list(Termin.objects.filter(classroom=classroom).all())
+
+    for item in termins:
+        if((time_start > item.time_start and time_start < item.time_end)
+           or 
+           (time_end >item.time_start and time_end < item.time_end)): return True
+
+    return False
+        
+
+
 def create_termin(request, id):
     if request.method == 'POST':
         try:
