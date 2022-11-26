@@ -476,11 +476,35 @@ def remote_user_from_course(request, id_person, id_course):
         return HttpResponse('ok')
     
 def remove_user(request,id_persone):
-    User.objects.filter(id_persone=id_persone).delete()
-    Person.objects.filter(id_persone=id_persone).delete()
-    return HttpResponse('ok')
+    try:
+        Course.objects.filter(garant_id=id_persone).update(garant_id = '')
+        
+        teacher_course_list = list(Teacher_Course.objects.filter(id_teacher=id_persone).all())
+        student_course_list = list(Student_Course.objects.filter(id_student=id_persone).all())
+        user_termin_list = list(User_Termin.objects.filter(id_student=id_persone).all())
+
+        for item in teacher_course_list: item.delete()
+        for item in student_course_list: item.delete()
+        for item in user_termin_list: item.delete()
+
+        User.objects.filter(id_persone=id_persone).delete()
+        Person.objects.filter(id_persone=id_persone).delete()
+        return HttpResponse('ok')
+    
+    except:
+        return HttpResponse('error')
  
 def remove_course(request,id_course):
+    
+    termin_list = list(Termin.objects.filter(id_course=id_course).all())
+    student_course_list = list(Student_Course.objects.filter(id_course=id_course).all())
+    teacher_course_list = list(Teacher_Course.objects.filter(id_course=id_course).all())
+    
+    for item in termin_list: item.delete()
+    for item in student_course_list: item.delete()
+    for item in teacher_course_list: item.delete()
+
+    
     Course.objects.filter(id_course=id_course).delete()
     return HttpResponse('ok')   
 

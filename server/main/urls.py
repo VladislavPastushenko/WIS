@@ -41,7 +41,7 @@ urlpatterns = [
     
     
     path('remove-user/<int:id>',views.remove_user,name='remove-user'),
-    path('remove-course/<int:id>',views.remove_course,name='remove-course'),
+    path('remove-course/<int:id_course>',views.remove_course,name='remove-course'),
     
     path('update-termin/<int:id>',views.update_termin,name='update_termin'),
     
