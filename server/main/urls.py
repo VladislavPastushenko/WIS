@@ -40,10 +40,10 @@ urlpatterns = [
     path('remove-user-from-course/<int:id_person>/<int:id_course>', views.remote_user_from_course, name='remove-user-from-course'),
     
     
-    path('remove-user/<int:id>',views.remove_user,name='remove-user'),
+    path('remove-user/<int:id_persone>',views.remove_user,name='remove-user'),
     path('remove-course/<int:id_course>',views.remove_course,name='remove-course'),
     
-    path('update-termin/<int:id>',views.update_termin,name='update_termin'),
+    path('update-termin/<int:id_termin>',views.update_termin,name='update_termin'),
     
 ]
 
