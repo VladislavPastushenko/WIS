@@ -591,3 +591,23 @@ def delete_room(request,id_room):
     except:
          return HttpResponse(status=500)
      
+def add_lector_to_course(request):
+    
+    if request.method == 'POST':
+        json_data = json.loads(request.body)
+        
+        id_person = json_data['id_person']
+        id_course = json_data['id_course']
+
+    
+        lector = Person.objects.filter(id_person=id_person).first()
+        if lector.role != 'l':
+            return HttpResponse('is not lector',status=500)
+
+        course = Course.objects.filter(id_course=id_course).first()
+        
+        try:
+            Teacher_Course.objects.create(id_teacher=lector,id_course=course)
+            return HttpResponse('ok')
+        except:
+            return HttpResponse('error create teacher_course object',status=500)

@@ -49,8 +49,7 @@ urlpatterns = [
     path('delete-room/<int:id_room>',views.delete_room,name='delete-room'),
     
     #check room in time
-    
-    
+    path('add-lector-to-course',views.add_lector_to_course,name='add-lector-to-course'),
     
     
 ]
