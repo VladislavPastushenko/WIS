@@ -536,7 +536,7 @@ def update_termin(request,id_termin):
                                             weekday=weekday,max_points=max_points,
                                             type=type,id_classroom=classroom_instance, description=description)
             except:
-                print("Error update termin")
+                return HttpResponse(status=500)
             
             return HttpResponse('ok')
 
