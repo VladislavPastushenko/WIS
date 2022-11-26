@@ -590,7 +590,9 @@ def delete_room(request,id_room):
         return HttpResponse('ok')
     except:
          return HttpResponse(status=500)
-     
+
+
+@csrf_exempt   
 def add_lector_to_course(request):
     
     if request.method == 'POST':
