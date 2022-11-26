@@ -495,19 +495,21 @@ def remove_user(request,id_persone):
         return HttpResponse('error')
  
 def remove_course(request,id_course):
-    
-    termin_list = list(Termin.objects.filter(id_course=id_course).all())
-    student_course_list = list(Student_Course.objects.filter(id_course=id_course).all())
-    teacher_course_list = list(Teacher_Course.objects.filter(id_course=id_course).all())
-    
-    for item in termin_list: item.delete()
-    for item in student_course_list: item.delete()
-    for item in teacher_course_list: item.delete()
+    try:
+        termin_list = list(Termin.objects.filter(id_course=id_course).all())
+        student_course_list = list(Student_Course.objects.filter(id_course=id_course).all())
+        teacher_course_list = list(Teacher_Course.objects.filter(id_course=id_course).all())
+        
+        for item in termin_list: item.delete()
+        for item in student_course_list: item.delete()
+        for item in teacher_course_list: item.delete()
 
-    
-    Course.objects.filter(id_course=id_course).delete()
-    return HttpResponse('ok')   
+        
+        Course.objects.filter(id_course=id_course).delete()
+        return HttpResponse('ok')   
 
+    except:
+        return HttpResponse('error')
 
 def update_termin(request,id_termin):
     if request.method == 'POST':
