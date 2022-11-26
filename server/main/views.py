@@ -1,6 +1,8 @@
 from atexit import register
 from django.shortcuts import render, redirect, get_object_or_404
 
+from django.views.decorators.csrf import csrf_exempt
+
 from django.http import Http404
 from django.http import JsonResponse
 from django.http import HttpResponse
@@ -65,9 +67,11 @@ def register_user(request):
             email = json_data['email']
             password = json_data['password']
 
+
             user_instance = User.objects.create_user(username=username, email=email, password=password)
             user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='g')
 
+            print(username)
             if user is not None:
                 return HttpResponse('ok')
             else:
@@ -536,9 +540,41 @@ def update_termin(request,id_termin):
                                             weekday=weekday,max_points=max_points,
                                             type=type,id_classroom=classroom_instance, description=description)
             except:
-                return HttpResponse(status=500)
-            
+                return HttpResponse(status=500)            
             return HttpResponse('ok')
 
         except:
             return HttpResponse(status=500)
+        
+        
+
+def check_room(name):
+    if(Classrooms.objects.filter(name=name).first()): return True
+    return False
+
+@csrf_exempt
+def add_room(request):
+    if request.method == 'POST':
+        json_data = json.loads(request.body)
+
+        name = json_data['name']
+
+        try:
+            if(check_room(name) == False):
+                Classrooms.objects.create(name=name)
+            else:
+                return HttpResponse('Error: name exist',status=500)
+        except: 
+            return HttpResponse(status=500)
+
+        return HttpResponse('ok')
+    
+    return HttpResponse('error')
+
+def delete_room(request,id_room):
+    try:
+        Classrooms.objects.filter(id_classroom=id_room).delete()
+        return HttpResponse('ok')
+    except:
+         return HttpResponse(status=500)
+     

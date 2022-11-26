@@ -42,8 +42,14 @@ urlpatterns = [
     
     path('remove-user/<int:id_persone>',views.remove_user,name='remove-user'),
     path('remove-course/<int:id_course>',views.remove_course,name='remove-course'),
-    
     path('update-termin/<int:id_termin>',views.update_termin,name='update_termin'),
+    
+    #room path
+    path('add-room',views.add_room,name='add-room'),
+    path('delete-room/<int:id_room>',views.delete_room,name='delete-room'),
+    path('update-room',views.add_room,name='add-room'),
+    
+    
     
 ]
 

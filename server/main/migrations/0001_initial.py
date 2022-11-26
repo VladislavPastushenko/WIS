@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Classrooms',
             fields=[
-                ('id_classroom', models.AutoField(primary_key=True, serialize=False)),
+                ('id_classroom', models.AutoField(auto_created = True,primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=50)),
             ],
         ),
