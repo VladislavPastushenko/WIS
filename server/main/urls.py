@@ -17,6 +17,7 @@ urlpatterns = [
     path('get-points-for-all-termins/<int:id_person>/<int:id_course>', views.get_points_for_all_termins, name='get-points-for-all-termins'),
     path('points-of-termin/<int:id>', views.points_of_termin, name='points-of-termin'),
 
+    path('course-edit/<int:id>', views.course_edit, name='course_edit'),
     path('create-course',views.create_course, name='create_course'),
     path('get-courses-by-user-id/<int:id>',views.get_course_user,name='get-course-user'),
     path('get-courses', views.get_courses, name='get-courses'),
@@ -41,7 +42,7 @@ urlpatterns = [
     path('add-lector-to-course',views.add_lector_to_course,name='add-lector-to-course'),
     path('delete-lector-to-course',views.delete_lector_course,name='delete-lector-to-course'),
     
-    path('get-lector-courses/<int:id_person>',views.get_lector_courses,name='get-lector-course')
+    path('get_garant_courses/<int:id_person>',views.get_garant_courses,name='get_garant_courses')
     
     
 ]

@@ -1,33 +1,36 @@
 import './ManageGarantedCourses.scss'
 import Table from 'react-bootstrap/Table';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import createRequest from '../../../Services/CreateRequest';
 import LoadingIcon from '../../../Components/LoadingIcon/LoadingIcon';
 import EditCourseModal from '../../../Components/EditCourseModal/EditCourseModal.jsx';
-import { loggedUser } from '../../../Context/LoggedUser';
+import { LoggedUserContext } from '../../../Context/LoggedUser';
 const ManageGarantedCourses = () => {
     const [courses, setCourses] = useState([])
     const [isLoading, setIsLoading] = useState(true)
     const [courseToEdit, setCourseToEdit] = useState({})
     const [modalOpen, setModalOpen] = useState(false)
-    useEffect(()=> {
-        setIsLoading(true);
-
-        createRequest({
-            path: '/get_garant_courses/' + loggedUser.id_person,
-            method: 'GET'
-        })
-        .then(res => res.json())
-        .then(res => {
-            console.log(res)
-            setIsLoading(false)
-            setCourses(res)
-        })
-        .catch(err => {
-            console.error(err)
-            setIsLoading(false)
-        })
-    }, [])
+    const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
+    useEffect(() => {
+        console.log(loggedUser)
+        if (loggedUser.id_person) {
+            setIsLoading(true);
+            createRequest({
+                path: '/get_garant_courses/' + loggedUser.id_person,
+                method: 'GET'
+            })
+            .then(res => res.json())
+            .then(res => {
+                console.log(res)
+                setIsLoading(false)
+                setCourses(res)
+            })
+            .catch(err => {
+                console.error(err)
+                setIsLoading(false)
+            })
+        }
+    }, [loggedUser])
 
     const editCourseModalOpen = (course) => {
         setCourseToEdit(course)
@@ -63,7 +66,7 @@ const ManageGarantedCourses = () => {
                                 <td colSpan={4} className={'text-center'}><LoadingIcon/></td>
                             </tr>
                             :
-                            courses.map((el, idx) => {
+                            courses.length > 0 ? courses.map((el, idx) => {
                                 return (
                                     <tr key={el.abbrv}>
                                         <td>{el.abbrv}</td>
@@ -73,6 +76,10 @@ const ManageGarantedCourses = () => {
                                     </tr>
                                 )
                             })
+                            :
+                            <tr>
+                                <td colSpan={4} className={'text-center'}>No courses</td>
+                            </tr>
                         }
                     </tbody>
                 </Table>

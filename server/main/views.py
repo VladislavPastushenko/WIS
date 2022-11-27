@@ -144,14 +144,16 @@ def profile_edit(request, id):
         except:
             return HttpResponse(status=500)
 
+@csrf_exempt
 def add_lector_func(id_person,id_course):
-
+    print('id_person', id_person)
+    print('id_course', id_course)
     lector = Person.objects.filter(id_person=id_person).first()
     if lector.role != 'l':
         return HttpResponse('is not lector',status=500)
 
     course = Course.objects.filter(id_course=id_course).first()
-    
+
     try:
         Teacher_Course.objects.create(id_teacher=lector,id_course=course)
         return HttpResponse('ok')
@@ -160,10 +162,11 @@ def add_lector_func(id_person,id_course):
 
 
 
-
+@csrf_exempt
 def course_edit(request, id):
     if request.method == 'POST':
         try:
+            user = authorize_by_request(request=request)
             person_instance = Person.objects.filter(user=request.user).first()
             if person_instance.is_garant == False:
                 return HttpResponse(status=500)
@@ -178,15 +181,9 @@ def course_edit(request, id):
             max_persons = json_data.get('max_persons') if json_data.get('max_persons') != None else course_instance.max_persons
             approved = json_data.get('approved') if json_data.get('approved') != None else course_instance.approved
             type = json_data.get('type') if json_data.get('type') != None else course_instance.type
-            
-            
-            
-            lektors = json_data.get('lektors_id')
-            
-            for item in lektors:
-                 add_lector_func(item,course_instance)
-            
-
+            lectors = json_data.get('lectors_id')
+            for item in lectors:
+                 add_lector_func(item, id)
 
             Course.objects.filter(id_course=course_instance.id_course).update(abbrv=abbrv,
                                                                               title=title,
@@ -236,7 +233,7 @@ def check_room_time(classroom,time_start,time_end,date):
     return False
         
 
-
+@csrf_exempt
 def create_termin(request, id):
     if request.method == 'POST':
         try:
@@ -520,6 +517,5 @@ def delete_lector_course(request):
 
 
 def get_garant_courses(request,id_person):
-    courses = list(Course.objects.filter(id_person=id_person).all())
+    courses = list(Course.objects.filter(garant_id=id_person).values())
     return courses
-    
