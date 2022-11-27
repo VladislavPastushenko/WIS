@@ -499,10 +499,6 @@ def add_lector_to_course(request):
             return HttpResponse('error create teacher_course object',status=500)
 
 
-
-
-
-
 @csrf_exempt   
 def delete_lector_course(request):
     if request.method == "POST":
@@ -517,4 +513,9 @@ def delete_lector_course(request):
             return HttpResponse('ok')
         except:
             return HttpResponse('error delete teacher_course object',status=500)
-        
+
+
+def get_garant_courses(request,id_person):
+    courses = list(Course.objects.filter(id_person=id_person).all())
+    return courses
+    

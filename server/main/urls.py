@@ -41,6 +41,8 @@ urlpatterns = [
     path('add-lector-to-course',views.add_lector_to_course,name='add-lector-to-course'),
     path('delete-lector-to-course',views.delete_lector_course,name='delete-lector-to-course'),
     
+    path('get-lector-courses/<int:id_person>',views.get_lector_courses,name='get-lector-course')
+    
     
 ]
 
