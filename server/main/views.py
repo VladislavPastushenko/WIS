@@ -76,6 +76,8 @@ def get_users_in_course(request, id):
 
 def get_course_by_id(request, id):
     course = Course.objects.filter(id_course=id).values()[0]
+    course['lectors'] = list(Teacher_Course.objects.filter(id_course=id).values())
+    course['garant'] = list(Person.objects.filter(id_person=course['garant_id']).values())[0]
     return JsonResponse(course, safe = False)
 
 def get_logged_user(request):
@@ -345,15 +347,16 @@ def create_course(request):
 
 #@login_required
 def get_course_user(request,id):
-    if request.user.is_authenticated:
-        student_course = list(Student_Course.objects.filter(id_student = id).values())
-        course_list = list()
-        for item in student_course:
-            course = Course.objects.filter(id_course = item['id_course_id']).values()[0]
-            course_list.append(course)
-        return JsonResponse(course_list, safe = False)
-    else:
-       return HttpResponse(status=500)
+    user = authorize_by_request(request=request)
+    student_course = list(Student_Course.objects.filter(id_student = id).values())
+    course_list = list()
+    for item in student_course:
+        course = Course.objects.filter(id_course = item['id_course_id']).values()[0]
+        course['lectors'] = list(Teacher_Course.objects.filter(id_course=item['id_course_id']).values())
+        course['garant'] = list(Person.objects.filter(id_person=course['garant_id']).values())[0]
+        course_list.append(course)
+    return JsonResponse(course_list, safe = False)
+
 
 
 def add_user_to_termin(request, id_person, id_termin):
