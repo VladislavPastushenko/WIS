@@ -28,5 +28,3 @@ urlpatterns += [
 ]
 
 urlpatterns += staticfiles_urlpatterns()
-
-handler404 = "main.views.page404"
