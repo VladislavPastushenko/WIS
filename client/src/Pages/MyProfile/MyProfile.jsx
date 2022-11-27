@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { LoggedUserContext } from '../../Context/LoggedUser'
 import './MyProfile.scss'
-import { redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import LoadingIcon from '../../Components/LoadingIcon/LoadingIcon';
 import Button from 'react-bootstrap/Button';
 import EditUserModal from '../../Components/EditUserModal/EditUserModal';
@@ -9,11 +9,18 @@ import EditUserModal from '../../Components/EditUserModal/EditUserModal';
 const MyProfile = () => {
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
     const [modalOpen, setModalOpen] = useState(false)
+    let navigate = useNavigate();
     useEffect(() => {
-        if (!loggedUser.token)
-            redirect('login')
-
+        if (!loggedUser.token) {
+            navigate('/login')
+        }
     }, [loggedUser])
+
+    const logout = () => {
+        localStorage.removeItem('token')
+        setLoggedUser({})
+        navigate('/login')
+    }
 
     let role;
 
@@ -66,8 +73,11 @@ const MyProfile = () => {
             <p>
                 <span className='fw-bold'>Role</span> - {role}
             </p>
-            <Button onClick={() => {setModalOpen(true)}}>
+            <Button onClick={() => {setModalOpen(true)}} style={{marginRight: '1em'}}>
                 Edit data
+            </Button>
+            <Button variant='danger' onClick={() => {logout()}}>
+                Logout
             </Button>
             <EditUserModal isModalOpen={modalOpen} setModalOpen={setModalOpen} user={loggedUser} isEditingLoggedUser={true}/>
         </div>

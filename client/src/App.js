@@ -11,6 +11,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import SignUp from "./Pages/SignUp/SignUp";
 import MyProfile from "./Pages/MyProfile/MyProfile";
 import createRequest from "./Services/CreateRequest";
+import Admin from "./Pages/Admin/Admin";
+import UserList from "./Pages/UserList/UserList";
 
 export default function App() {
   const [loggedUser, setLoggedUser] = useState(loggedUserDefault)
@@ -40,6 +42,12 @@ export default function App() {
             <Route path="/" element={<Home/>}/>
             <Route path="/sign-up" element={<SignUp />}/>
             <Route path="/my-profile" element={<MyProfile />}/>
+
+            {/* {loggedUser.role === 'a' && */}
+            <>
+              <Route path="/admin" element={<Admin />}/>
+              <Route path="/user-list" element={<UserList />}/>
+            </>
           </Routes>
         </Container>
         <Footer/>

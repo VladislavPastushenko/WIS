@@ -30,7 +30,7 @@ urlpatterns = [
     path('get-courses-by-user-id/<int:id>',views.get_course_user,name='get-course-user'),
     path('get-courses', views.get_courses, name='get-courses'),
 
-    path('get-all-users/', views.get_users, name='get-all-users'),
+    path('get-all-users', views.get_users, name='get-all-users'),
     path('get-course-by-id/<int:id>', views.get_course_by_id, name='get-course-by-id'),
     path('get-logged-user', views.get_logged_user, name='get-logged-user'),
 
