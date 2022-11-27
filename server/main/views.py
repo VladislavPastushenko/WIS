@@ -144,6 +144,22 @@ def profile_edit(request, id):
         except:
             return HttpResponse(status=500)
 
+def add_lector_func(id_person,id_course):
+
+    lector = Person.objects.filter(id_person=id_person).first()
+    if lector.role != 'l':
+        return HttpResponse('is not lector',status=500)
+
+    course = Course.objects.filter(id_course=id_course).first()
+    
+    try:
+        Teacher_Course.objects.create(id_teacher=lector,id_course=course)
+        return HttpResponse('ok')
+    except:
+        return HttpResponse('error create teacher_course object',status=500)
+
+
+
 
 def course_edit(request, id):
     if request.method == 'POST':
@@ -162,6 +178,14 @@ def course_edit(request, id):
             max_persons = json_data.get('max_persons') if json_data.get('max_persons') != None else course_instance.max_persons
             approved = json_data.get('approved') if json_data.get('approved') != None else course_instance.approved
             type = json_data.get('type') if json_data.get('type') != None else course_instance.type
+            
+            
+            
+            lektors = json_data.get('lektors_id')
+            
+            for item in lektors:
+                 add_lector_func(item,course_instance)
+            
 
 
             Course.objects.filter(id_course=course_instance.id_course).update(abbrv=abbrv,
@@ -200,13 +224,14 @@ def logout_user(request):
     return redirect("/")
 
 
-def check_room_time(classroom,time_start,time_end):
+def check_room_time(classroom,time_start,time_end,date):
     termins = list(Termin.objects.filter(classroom=classroom).all())
 
     for item in termins:
+        
         if((time_start > item.time_start and time_start < item.time_end)
-           or 
-           (time_end >item.time_start and time_end < item.time_end)): return True
+            or 
+            (time_end >item.time_start and time_end < item.time_end)): return True
 
     return False
         
@@ -231,6 +256,11 @@ def create_termin(request, id):
             classroom = json_data['classroom'] 
             type = json_data['type']
             description = json_data['description']
+            
+            
+            auto_register = json_data['auto_register']
+            
+            capacita = json_data['capacita']
 
             classroom_instance = Classrooms.objects.filter(name=classroom).first()
             course_instance = Course.objects.filter(id_course=id).first()
@@ -240,7 +270,7 @@ def create_termin(request, id):
                                         time_end=time_end,date=date,
                                         weekday=weekday,max_points=max_points,
                                         type=type, id_course=course_instance,
-                                        id_classroom=classroom_instance, description=description)
+                                        id_classroom=classroom_instance, description=description,capacita=capacita,auto_register=auto_register)
             except:
                 print("error create course")    
 
@@ -471,3 +501,24 @@ def add_lector_to_course(request):
             return HttpResponse('ok')
         except:
             return HttpResponse('error create teacher_course object',status=500)
+
+
+
+
+
+
+@csrf_exempt   
+def delete_lector_course(request):
+    if request.method == "POST":
+        
+        json_data = json.loads(request.body)
+        
+        id_person = json_data['id_person']
+        id_course = json_data['id_course']
+        
+        try:
+            Teacher_Course.objects.filter(id_teacher=id_person,id_course=id_course).delete()
+            return HttpResponse('ok')
+        except:
+            return HttpResponse('error delete teacher_course object',status=500)
+        
