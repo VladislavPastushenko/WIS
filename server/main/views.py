@@ -256,7 +256,6 @@ def create_termin(request, id):
             type = json_data['type']
             description = json_data['description']
             
-            
             auto_register = json_data['auto_register']
             
             capacita = json_data['capacita']
@@ -353,6 +352,18 @@ def get_course_user(request,id):
        return HttpResponse(status=500)
 
 
+def add_user_to_termin(request, id_person, id_termin):
+    termin = Termin.objects.filter(id_termin=id_termin).first()
+    person = Person.objects.filter(id_person=id_person).first()
+    User_Termin.objects.create(id_student=person, id_termin=termin, points=0)
+    return HttpResponse('ok')
+
+def remote_user_from_termin(request, id_person, id_termin):
+    termin = Termin.objects.filter(id_termin=id_termin).first()
+    person = Person.objects.filter(id_person=id_person).first()
+    User_Termin.objects.filter(id_student=person, id_termin=termin).delete()
+    return HttpResponse('ok')
+
 def add_user_to_course(request, id_person, id_course):
     # if request.method == 'POST':
         course = Course.objects.filter(id_course=id_course).first()
@@ -361,7 +372,8 @@ def add_user_to_course(request, id_person, id_course):
         termins = list(Termin.objects.filter(id_course=course).values())
         for item in termins:
             termin = Termin.objects.filter(id_termin=item['id_termin']).first()
-            User_Termin.objects.create(id_student=person, id_termin=termin, points=0)
+            if item['auto_regist'] == 1:
+                User_Termin.objects.create(id_student=person, id_termin=termin, points=0)
         return HttpResponse('ok')
 
 def remote_user_from_course(request, id_person, id_course):
