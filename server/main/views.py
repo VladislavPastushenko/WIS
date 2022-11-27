@@ -329,7 +329,7 @@ def create_course(request):
             try:
                 Course.objects.create(abbrv=abbrv,title=title,description=description,
                                         credits=credits,max_persons=max_persons,
-                                        garant_id=active_person,approved=0)
+                                        garant=active_person,approved=0)
             except:
                 print("error create course")
 
