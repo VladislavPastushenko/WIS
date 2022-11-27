@@ -38,6 +38,7 @@ urlpatterns = [
     path('delete-room/<int:id_room>',views.delete_room,name='delete-room'),
     
     path('add-lector-to-course',views.add_lector_to_course,name='add-lector-to-course'),
+    path('delete-lector-to-course',views.delete_lector_course,name='delete-lector-to-course'),
     
     
 ]
