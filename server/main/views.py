@@ -43,12 +43,15 @@ def get_courses(request):
         count = Student_Course.objects.filter(id_course=course['id_course']).count()
         course['count'] = count
         course['garant'] = list(Person.objects.filter(id_person=course['garant_id']).values())[0]
+        course['lectors'] = list(Teacher_Course.objects.filter(id_course=course['id_course']).values())
     return JsonResponse(courses, safe = False)
 
 def get_users(request):
     role = request.GET.get('role')
     if role != None:
         person = list(Person.objects.filter(role=role).values())
+        if role == 'l':
+            person = person + list(Person.objects.filter(role='g').values())
     else:
         person = list(Person.objects.values())
 
@@ -382,17 +385,18 @@ def update_termin(request,id_termin):
     if request.method == 'POST':
         try:
             json_data = json.loads(request.body)
+            termin_instance = Termin.objects.filter(id_termin=id_termin).first()
 
-            name = json_data['name']  
-            repeted = json_data['repeted']  
-            time_start = json_data['time_start']  
-            time_end = json_data['time_end']  
-            date = json_data['date']  
-            weekday = json_data['weekday'] 
-            max_points = json_data['max_points'] 
-            classroom = json_data['classroom'] 
-            type = json_data['type']
-            description = json_data['description']
+            name = json_data.get('name') if json_data.get('name') != None else termin_instance.name
+            repeted = json_data.get('repeted') if json_data.get('repeted') != None else termin_instance.repeted 
+            time_start = json_data.get('time_start') if json_data.get('time_start') != None else termin_instance.time_start 
+            time_end = json_data.get('time_end') if json_data.get('time_end') != None else termin_instance.time_end 
+            date = json_data.get('date') if json_data.get('date') != None else termin_instance.date  
+            weekday = json_data.get('weekday') if json_data.get('weekday') != None else termin_instance.weekday
+            max_points = json_data.get('max_points') if json_data.get('max_points') != None else termin_instance.max_points
+            classroom = json_data.get('classroom') if json_data.get('classroom') != None else termin_instance.classroom
+            type = json_data.get('type') if json_data.get('type') != None else termin_instance.type
+            description = json_data.get('description') if json_data.get('description') != None else termin_instance.description
             
             
             classroom_instance = Classrooms.objects.filter(name=classroom).first()
