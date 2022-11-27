@@ -18,6 +18,7 @@ const MyProfile = () => {
 
     const logout = () => {
         localStorage.removeItem('token')
+        localStorage.removeItem('role')
         setLoggedUser({})
         navigate('/login')
     }

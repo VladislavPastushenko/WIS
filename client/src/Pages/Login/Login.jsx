@@ -18,11 +18,14 @@ const Login = () => {
             method: 'POST',
             body: JSON.stringify(data)
         })
+        .then(res => res.json())
         .then(res => {
+            console.log(res)
             toast.success('User was successfully signed-in')
             const token = btoa(data.username + ' ' + data.password)
             localStorage.setItem('token', token)
-            setLoggedUser({username: data.username, token: token})
+            localStorage.setItem('role', res.role)
+            setLoggedUser({...res, token: token})
         })
         .catch(err => {
             if (err.status === 401)

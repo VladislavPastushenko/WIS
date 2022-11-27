@@ -20,7 +20,6 @@ const UserList = () => {
         })
         .then(res => res.json())
         .then(res => {
-            console.log(res)
             setIsLoading(false)
             setUsers(res)
         })
