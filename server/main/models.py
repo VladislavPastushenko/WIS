@@ -110,6 +110,10 @@ class Termin(models.Model):
     weekday = models.CharField(max_length=10, default=None)
     max_points = models.IntegerField(default=None)
     description = models.CharField(max_length=100, default=None)
+    
+    auto_regist = models.BooleanField(default=None)
+    capacita = models.IntegerField(default=None)
+    
 
     TYPES = (
         ('l', 'lecture'),

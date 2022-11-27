@@ -253,6 +253,11 @@ def create_termin(request, id):
             classroom = json_data['classroom'] 
             type = json_data['type']
             description = json_data['description']
+            
+            
+            auto_register = json_data['auto_register']
+            
+            capacita = json_data['capacita']
 
             classroom_instance = Classrooms.objects.filter(name=classroom).first()
             course_instance = Course.objects.filter(id_course=id).first()
@@ -262,7 +267,7 @@ def create_termin(request, id):
                                         time_end=time_end,date=date,
                                         weekday=weekday,max_points=max_points,
                                         type=type, id_course=course_instance,
-                                        id_classroom=classroom_instance, description=description)
+                                        id_classroom=classroom_instance, description=description,capacita=capacita,auto_register=auto_register)
             except:
                 print("error create course")    
 
