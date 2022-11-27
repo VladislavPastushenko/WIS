@@ -21,7 +21,7 @@ function Home() {
             setCourses(res)
         })
         .catch(err => {
-            console.err(err)
+            console.error(err)
             setIsLoading(false)
         })
     }, [])

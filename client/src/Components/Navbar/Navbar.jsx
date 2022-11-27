@@ -35,6 +35,9 @@ const Header = () => {
                     {isLoggedIn &&
                     <Nav.Link href="/my-profile"> My profile</Nav.Link>
                     }
+                    {loggedUser.role === 'a' &&
+                    <Nav.Link href="/admin"> Admin </Nav.Link>
+                    }
                 </Nav>
                 </Navbar.Collapse>
             </Container>

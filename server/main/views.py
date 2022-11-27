@@ -19,6 +19,8 @@ import base64
 
 # Create your views here.
 
+def page404(request, exceptio):
+    return
 
 def authorize_by_request(request):
     authorization_header = request.META['HTTP_AUTHORIZATION']
@@ -40,19 +42,37 @@ def get_courses(request):
 def get_users(request):
     role = request.GET.get('role')
     if role != None:
-        users = list(Person.objects.filter(role=role).values())
+        person = list(Person.objects.filter(role=role).values())
     else:
-        users = list(Person.objects.values())
-    return JsonResponse(users, safe = False)
+        person = list(Person.objects.values())
+
+    person_list = list()
+    for item in person:
+        user = User.objects.filter(email=item['email']).first()
+        item['username'] = user.username
+        item['password'] = user.password
+        person_list.append(item)
+    return JsonResponse(person_list, safe = False)
+
+def get_users_in_course(request, id):
+    person_list = list()
+    students = list(Student_Course.objects.filter(id_course=id))
+    for item in students:
+        person = Person.objects.filter(id_person=item['id_student']).first()
+        user = User.objects.filter(email=person.email).first()
+        person['username'] = user.username
+        person['password'] = user.password
+        person_list.append(person)
+    return JsonResponse(person_list, safe = False)
 
 def get_course_by_id(request, id):
     course = Course.objects.filter(id_course=id).values()[0]
     return JsonResponse(course, safe = False)
 
 def get_logged_user(request):
-    #user = authorize_by_request(request=request)
+    user = authorize_by_request(request=request)
     person_instance = list(Person.objects.filter(user=request.user).values())[0]
-    return JsonResponse(person_instance, safe = False)
+    return JsonResponse({**person_instance, 'username': user.get_username()}, safe = False)
 
 
 @csrf_exempt
@@ -69,7 +89,7 @@ def register_user(request):
 
 
             user_instance = User.objects.create_user(username=username, email=email, password=password)
-            user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='g')
+            user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='s')
 
             print(username)
             if user is not None:
@@ -79,13 +99,18 @@ def register_user(request):
         except:
             return HttpResponse(status=500)
 
-
+@csrf_exempt
 def profile_edit(request, id):
     if request.method == 'POST':
+        user = authorize_by_request(request=request)
         try:
             person_instance = Person.objects.filter(id_person=id).first()
             json_data = json.loads(request.body)
 
+            user_instance = User.objects.filter(email=person_instance.email).first()
+            username = json_data.get('username') if json_data.get('username') != None else user_instance.username
+            password = json_data.get('password') if json_data.get('password') != None else user_instance.password
+            firstname = json_data.get('firstname') if json_data.get('firstname') != None else person_instance.firstname
             firstname = json_data.get('firstname') if json_data.get('firstname') != None else person_instance.firstname
             surname = json_data.get('surname') if json_data.get('surname') != None else person_instance.surname
             address = json_data.get('address') if json_data.get('address') != None else person_instance.address
@@ -98,6 +123,8 @@ def profile_edit(request, id):
                 return HttpResponse(status=500)
             elif active_person.is_admin == False and person_instance.id_person != active_person.id_person:
                 return HttpResponse(status=500)
+
+            User.objects.filter(email=person_instance.email).update(username=username, password=password)
 
             Person.objects.filter(id_person=person_instance.id_person).update(firstname=firstname,
                                                                               surname=surname,
@@ -156,198 +183,12 @@ def login_user(request):
         except:
             return HttpResponse(status=500)
 
-def index(request):
-    course = Course.objects.all()
-
-    person_instance = None
-    if request.user.is_authenticated:
-        person_instance = Person.objects.filter(user=request.user).first()
-    context = {
-            'course' : course,
-            "person": person_instance
-        }
-    return render(request, 'index.html', context)
-
-def page404(request, exception):
-    return render(request, '404.html', status=404)
-
-
-def access_failed(request):
-
-    person_instance = None
-    if request.user.is_authenticated:
-        person_instance = Person.objects.filter(user=request.user).first()
-    context = {
-            "person": person_instance
-        }
-    return render(request, 'access_denied.html', context)
-
-
 
 
 def logout_user(request):
     logout(request)
     messages.success(request,"You Were logout")
     return redirect("/")
-
-
-def logged_view(request):
-    context = {
-    }
-
-    return render(request, 'logged_on.html', context)
-
-
-def courses_view(request, id):
-    course = Course.objects.filter(id_course=id).first()
-    is_register = False
-    if request.user.is_authenticated:
-        person_instance = Person.objects.filter(user=request.user).first()
-        courses_user = person_instance.courses.all()
-
-        for i in courses_user:
-            if i.abbrv == course.abbrv:
-                is_register = True
-                break
-
-
-        if request.method == "POST":
-
-            if 'Register' in request.POST:
-                person_instance.courses.add(course)   
-                person_instance.save() 
-                is_register = True
-
-            elif 'Unregister' in request.POST:
-                person_instance.courses.remove(course)
-                person_instance.save()
-                is_register = False
-
-    context = {
-        "course" : course,
-        "course_abbrv" : course.abbrv,
-        "course_title" : course.title,
-        "is_register" : is_register,
-        #'person' : person_instance,
-    }
-
-    return render(request, 'course_detail.html', context)
-
-@login_required
-def study_view(request):
-    if request.user.is_authenticated:
-        person_instance = Person.objects.filter(user=request.user).first()
-        courses = person_instance.courses.all()
-
-    contex = {
-        'courses' : courses,
-    }
-    return render(request, 'study_view.html',contex)
-
-
-
-
-
-@login_required
-def admin_view(request):
-    if request.user.is_authenticated:
-        person_instance = Person.objects.filter(user=request.user).first()
-
-        if person_instance.role != 'a':
-            redirect("/access_failed")
-            raise Http404
-
-        persons = Person.objects.all()
-        context = {
-            "person": person_instance,
-            "persons" : persons
-        }
-    else:
-        raise Http404
-
-    return render(request, 'admin_view.html', context)
-@login_required
-def study_view(request):
-    if request.user.is_authenticated:
-        person_instance = Person.objects.filter(user=request.user).first()
-        courses = person_instance.courses.all()
-
-    contex = {
-        'courses' : courses,
-    }
-    
-    return render(request, 'study_view.html',contex)
-
-
-@login_required
-def profile_view(request):
-    if request.user.is_authenticated:
-        person_instance = Person.objects.filter(user=request.user).first()
-        
-        context = {
-            "person": person_instance,
-            "role" : person_instance.role
-        }
-    else:
-        raise Http404
-
-    return render(request, 'profile.html', context)
-
-
-def user_delete(request, id):
-    person_instance = Person.objects.filter(id_person=id).first()
-    if request.method == 'POST':
-        if 'Delete' in request.POST:
-            Person.objects.get(id_person=person_instance.id_person).delete()
-            User.objects.filter(username=person_instance.user).delete()
-        return redirect('/admin_view')
-    context = {
-        'person': person_instance,
-    }
-    return render(request, 'admin_user_delete.html', context)
-    
-
-def user_update(request, id):
-    person_instance = Person.objects.filter(id_person=id).first()
-    if request.method == 'POST':
-        person_instance = Person.objects.filter(id_person=id).first()
-
-        form = UpdateUser(request.POST or None)
-        if form.is_valid():
-            role = form.cleaned_data['role'] if form.cleaned_data['role'] != '' else person_instance.role
-            Person.objects.filter(id_person=person_instance.id_person).update(role=role)
-            person_instance = Person.objects.filter(id_person=id).first()
-            return redirect('/admin_view')
-    else:
-        form = UpdateUser()    
-
-    context = {
-        'form' : form,
-        'person': person_instance,
-    }
-    return render(request, 'admin_user_update.html', context)
-
-
-
-
-@login_required
-def garant_view(request):
-    if request.user.is_authenticated:
-        person_instance = Person.objects.filter(user=request.user).first()
-        courses = person_instance.courses.all()
-        if person_instance.role != 'g':
-            return redirect('/access_failed')
-            raise Http404
-
-        context = {
-            "person": person_instance,
-            'courses' : courses
-        }
-    else:
-        raise Http404
-
-    return render(request, 'garant_view.html', context)
-
 
 
 def check_room_time(classroom,time_start,time_end):

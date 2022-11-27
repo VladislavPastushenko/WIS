@@ -3,7 +3,8 @@
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
-__pycache__
+__pycache__/
+migrations/
 *.py[cod]
 *$py.class
 
