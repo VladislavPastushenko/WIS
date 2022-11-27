@@ -147,7 +147,7 @@ def profile_edit(request, id):
 @csrf_exempt
 def add_lector_func(id_person,id_course):
     lector = Person.objects.filter(id_person=id_person).first()
-    if lector.role != 'l':
+    if lector.role != 'l' and lector.role != 'g':
         return HttpResponse('is not lector',status=500)
 
     course = Course.objects.filter(id_course=id_course).first()
@@ -490,7 +490,7 @@ def add_lector_to_course(request):
 
     
         lector = Person.objects.filter(id_person=id_person).first()
-        if lector.role != 'l':
+        if lector.role != 'l' :
             return HttpResponse('is not lector',status=500)
 
         course = Course.objects.filter(id_course=id_course).first()
@@ -520,4 +520,8 @@ def delete_lector_course(request):
 
 def get_garant_courses(request, id_person):
     courses = list(Course.objects.filter(garant_id=id_person).values())
+    garant = Person.objects.filter(id_person=id_person).values()[0]
+    for item in courses:
+        item['lectors'] = list(Teacher_Course.objects.filter(id_course=item['id_course']).values())
+        item['garant'] = garant
     return JsonResponse(courses, safe=False)
