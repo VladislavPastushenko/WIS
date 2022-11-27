@@ -58,12 +58,13 @@ const ManageGarantedCourses = () => {
                             <th>Title</th>
                             <th>Garant</th>
                             <th></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         {isLoading ?
                             <tr>
-                                <td colSpan={4} className={'text-center'}><LoadingIcon/></td>
+                                <td colSpan={5} className={'text-center'}><LoadingIcon/></td>
                             </tr>
                             :
                             courses.length > 0 ? courses.map((el, idx) => {
@@ -73,12 +74,13 @@ const ManageGarantedCourses = () => {
                                         <td><a href={`/${el.aabrv}`}>{el.title}</a></td>
                                         <td>{el.garant.firstname} {el.garant.surname}</td>
                                         <td><a href={`#`} onClick={() => {editCourseModalOpen(el)}}>Edit</a></td>
+                                        <td><a href={`/termins/${el.id_course}`}>Termins</a></td>
                                     </tr>
                                 )
                             })
                             :
                             <tr>
-                                <td colSpan={4} className={'text-center'}>No courses</td>
+                                <td colSpan={5} className={'text-center'}>No courses</td>
                             </tr>
                         }
                     </tbody>

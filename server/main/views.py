@@ -38,7 +38,7 @@ def authorize_by_request(request):
 
 def get_courses(request):
     courses = list(Course.objects.values())
-    
+
     for course in courses:
         count = Student_Course.objects.filter(id_course=course['id_course']).count()
         course['count'] = count
@@ -503,12 +503,12 @@ def add_lector_to_course(request):
 @csrf_exempt   
 def delete_lector_course(request):
     if request.method == "POST":
-        
+
         json_data = json.loads(request.body)
-        
+
         id_person = json_data['id_person']
         id_course = json_data['id_course']
-        
+
         try:
             Teacher_Course.objects.filter(id_teacher=id_person,id_course=id_course).delete()
             return HttpResponse('ok')
@@ -516,6 +516,6 @@ def delete_lector_course(request):
             return HttpResponse('error delete teacher_course object',status=500)
 
 
-def get_garant_courses(request,id_person):
+def get_garant_courses(request, id_person):
     courses = list(Course.objects.filter(garant_id=id_person).values())
-    return courses
+    return JsonResponse(courses, safe=False)

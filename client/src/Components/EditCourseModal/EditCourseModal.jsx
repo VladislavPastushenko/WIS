@@ -21,7 +21,6 @@ const EditCourseModal = ({isModalOpen, setModalOpen, course, sideEffectOnChange}
             setSelectedTeachers(course.lectors.map(el => el.id_teacher_id))
         else setSelectedTeachers([])
     }, [course.lectors])
-    console.log('selectedTeachers', selectedTeachers)
 
     const onSubmit = (e) => {
         e.preventDefault()
@@ -39,7 +38,6 @@ const EditCourseModal = ({isModalOpen, setModalOpen, course, sideEffectOnChange}
         if (e.target.garant_id) data.garant_id = parseInt(e.target.garant_id.value);
         data.lectors_id = selectedTeachers.map(el => parseInt(el))
 
-        console.log(data)
 
         createRequest({
             path: '/course-edit/' + course.id_course,
@@ -47,7 +45,7 @@ const EditCourseModal = ({isModalOpen, setModalOpen, course, sideEffectOnChange}
             body: JSON.stringify(data)
         })
         .then(res => {
-            if (sideEffectOnChange) sideEffectOnChange(data)
+            if (sideEffectOnChange) sideEffectOnChange({...data, garant: garants.find(el => el.id_person === data.garant_id)})
             toast.success('Course was successfully edited')
             setModalOpen(false)
         })
