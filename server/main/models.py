@@ -55,11 +55,12 @@ class Person(models.Model):
 
 class Course(models.Model):
     id_course = models.AutoField(primary_key=True) # basically IntegerField but with autoincrementation so after all Primary Key
-    abbrv = models.CharField(max_length = 5)    
+    abbrv = models.CharField(max_length = 5)
     title = models.TextField(blank = True)
     description = models.TextField(blank=False)
     credits = models.IntegerField(default=5)
-    garant_id = models.ForeignKey(Person, models.DO_NOTHING, db_column='id_person', default=None)
+    garant = models.ForeignKey(Person, models.DO_NOTHING, db_column='id_person', default=None)
+
     max_persons = models.IntegerField(default=100)
     approved = models.BooleanField(default=False)
 
