@@ -146,8 +146,6 @@ def profile_edit(request, id):
 
 @csrf_exempt
 def add_lector_func(id_person,id_course):
-    print('id_person', id_person)
-    print('id_course', id_course)
     lector = Person.objects.filter(id_person=id_person).first()
     if lector.role != 'l':
         return HttpResponse('is not lector',status=500)
@@ -182,8 +180,12 @@ def course_edit(request, id):
             approved = json_data.get('approved') if json_data.get('approved') != None else course_instance.approved
             type = json_data.get('type') if json_data.get('type') != None else course_instance.type
             lectors = json_data.get('lectors_id')
+            garant = int(json_data.get('garant_id'))
+            person_instance = Person.objects.filter(id_person=garant).first()
+            
             for item in lectors:
-                 add_lector_func(item, id)
+                Teacher_Course.objects.filter(id_course=id).delete()
+                add_lector_func(item, id)
 
             Course.objects.filter(id_course=course_instance.id_course).update(abbrv=abbrv,
                                                                               title=title,
@@ -191,7 +193,7 @@ def course_edit(request, id):
                                                                               max_persons=max_persons,
                                                                               credits=credits,
                                                                               approved=approved, 
-                                                                              type=type)
+                                                                              type=type, garant=person_instance)
             return HttpResponse('ok')
         except:
             return HttpResponse(status=500)
