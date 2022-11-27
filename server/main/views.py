@@ -19,7 +19,6 @@ import base64
 
 # Create your views here.
 
-
 def authorize_by_request(request):
     authorization_header = request.META['HTTP_AUTHORIZATION']
     base64_bytes = authorization_header.encode('ascii')
@@ -35,6 +34,8 @@ def authorize_by_request(request):
 
 def get_courses(request):
     courses = list(Course.objects.values())
+    for course in courses:
+        course['garant'] = list(Person.objects.filter(id_person=course['garant_id']).values())[0]
     return JsonResponse(courses, safe = False)
 
 def get_users(request):
@@ -150,8 +151,8 @@ def login_user(request):
             user = authenticate(request,username=username,password=password)
             if user is not None:
                 login(request, user)
-                print(request.user)
-                return HttpResponse('ok')
+                person_instance = list(Person.objects.filter(user=request.user).values())[0]
+                return JsonResponse({**person_instance, 'username': user.get_username()}, safe = False)
             else:
                 return HttpResponse(status=401)
         except:

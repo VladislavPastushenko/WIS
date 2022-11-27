@@ -13,6 +13,7 @@ import MyProfile from "./Pages/MyProfile/MyProfile";
 import createRequest from "./Services/CreateRequest";
 import Admin from "./Pages/Admin/Admin";
 import UserList from "./Pages/UserList/UserList";
+import Courses from "./Pages/Courses/Courses";
 
 export default function App() {
   const [loggedUser, setLoggedUser] = useState(loggedUserDefault)
@@ -24,7 +25,7 @@ export default function App() {
       })
       .then(res => res.json())
       .then(res => {
-          setLoggedUser({...res, token: localStorage.getItem('token')})
+          setLoggedUser({...res, token: localStorage.getItem('token')});
       })
       .catch(err => {
           console.error(err)
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="/" element={<Home/>}/>
             <Route path="/sign-up" element={<SignUp />}/>
             <Route path="/my-profile" element={<MyProfile />}/>
+            <Route path="/courses" element={<Courses />}/>
 
             {/* {loggedUser.role === 'a' && */}
             <>
