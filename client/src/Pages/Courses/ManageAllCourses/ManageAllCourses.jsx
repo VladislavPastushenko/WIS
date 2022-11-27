@@ -3,12 +3,10 @@ import Table from 'react-bootstrap/Table';
 import { useEffect, useState } from 'react';
 import createRequest from '../../../Services/CreateRequest';
 import LoadingIcon from '../../../Components/LoadingIcon/LoadingIcon';
-import EditCourseModal from '../../../Components/EditCourseModal/EditCourseModal';
 const ManageAllCourses = () => {
     const [courses, setCourses] = useState([])
     const [isLoading, setIsLoading] = useState(true)
-    const [courseToEdit, setCourseToEdit] = useState({})
-    const [modalOpen, setModalOpen] = useState(false)
+
     useEffect(()=> {
         setIsLoading(true);
 
@@ -27,18 +25,6 @@ const ManageAllCourses = () => {
             setIsLoading(false)
         })
     }, [])
-
-    const editCourseModalOpen = (course) => {
-        setCourseToEdit(course)
-        setModalOpen(true)
-    }
-
-    const onEditCourse = (editedCourse) => {
-        setCourses(prev => {
-            return prev.map(el => el.id_course === editedCourse.id_course ? editedCourse : el)
-        })
-    }
-
     return (
         <>
             <>
@@ -52,8 +38,8 @@ const ManageAllCourses = () => {
                         <tr>
                             <th style={{width: '50px'}}>Abbrv</th>
                             <th>Title</th>
-                            <th>Garant</th>
-                            <th></th>
+                            <th style={{width: '150px'}}>Duty</th>
+                            <th style={{width: '150px'}}>Fakulta</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,8 +53,8 @@ const ManageAllCourses = () => {
                                     <tr key={el.abbrv}>
                                         <td>{el.abbrv}</td>
                                         <td><a href={`/${el.aabrv}`}>{el.title}</a></td>
-                                        <td>{el.garant.firstname} {el.garant.surname}</td>
-                                        <td><a href={`#`} onClick={() => {editCourseModalOpen(el)}}>Edit</a></td>
+                                        <td>{el.credits}</td>
+                                        <td>{el.fakulta}</td>
                                     </tr>
                                 )
                             })
@@ -76,7 +62,6 @@ const ManageAllCourses = () => {
                     </tbody>
                 </Table>
             </div>
-            <EditCourseModal isModalOpen={modalOpen} setModalOpen={setModalOpen} course={courseToEdit} sideEffectOnChange={onEditCourse}/>
         </div>
         </>
         </>

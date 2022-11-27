@@ -47,7 +47,7 @@ const EditUserModal = ({isModalOpen, setModalOpen, user, sideEffectOnChange}) =>
                 <Modal.Title>Edit user</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form onSubmit={e => {onSubmit(e)}} id={'Edit' + user.username}>
+                <Form className={'signUpForm'} onSubmit={e => {onSubmit(e)}} id={'Edit' + user.username}>
                     <Form.Group className="mb-3">
                         <Form.Label>First Name</Form.Label>
                         <Form.Control type="text" name='firstname' placeholder="Name" defaultValue={user.firstname}/>

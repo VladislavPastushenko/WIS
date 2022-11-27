@@ -38,16 +38,20 @@ def authorize_by_request(request):
 
 def get_courses(request):
     courses = list(Course.objects.values())
+    
     for course in courses:
         count = Student_Course.objects.filter(id_course=course['id_course']).count()
         course['count'] = count
         course['garant'] = list(Person.objects.filter(id_person=course['garant_id']).values())[0]
+        course['lectors'] = list(Teacher_Course.objects.filter(id_course=course['id_course']).values())
     return JsonResponse(courses, safe = False)
 
 def get_users(request):
     role = request.GET.get('role')
     if role != None:
         person = list(Person.objects.filter(role=role).values())
+        if role == 'l':
+            person = person + list(Person.objects.filter(role='g').values())
     else:
         person = list(Person.objects.values())
 
@@ -140,11 +144,26 @@ def profile_edit(request, id):
         except:
             return HttpResponse(status=500)
 
-@csrf_exempt
+def add_lector_func(id_person,id_course):
+
+    lector = Person.objects.filter(id_person=id_person).first()
+    if lector.role != 'l':
+        return HttpResponse('is not lector',status=500)
+
+    course = Course.objects.filter(id_course=id_course).first()
+    
+    try:
+        Teacher_Course.objects.create(id_teacher=lector,id_course=course)
+        return HttpResponse('ok')
+    except:
+        return HttpResponse('error create teacher_course object',status=500)
+
+
+
+
 def course_edit(request, id):
     if request.method == 'POST':
         try:
-            user = authorize_by_request(request=request)
             person_instance = Person.objects.filter(user=request.user).first()
             if person_instance.is_garant == False:
                 return HttpResponse(status=500)
@@ -159,13 +178,23 @@ def course_edit(request, id):
             max_persons = json_data.get('max_persons') if json_data.get('max_persons') != None else course_instance.max_persons
             approved = json_data.get('approved') if json_data.get('approved') != None else course_instance.approved
             type = json_data.get('type') if json_data.get('type') != None else course_instance.type
-            Course.objects.filter(id_course=id).update(abbrv=abbrv,
-                                                                    title=title,
-                                                                    description=description,
-                                                                    max_persons=max_persons,
-                                                                    credits=credits,
-                                                                    approved=approved,
-                                                                    type=type)
+            
+            
+            
+            lektors = json_data.get('lektors_id')
+            
+            for item in lektors:
+                 add_lector_func(item,course_instance)
+            
+
+
+            Course.objects.filter(id_course=course_instance.id_course).update(abbrv=abbrv,
+                                                                              title=title,
+                                                                              description=description,
+                                                                              max_persons=max_persons,
+                                                                              credits=credits,
+                                                                              approved=approved, 
+                                                                              type=type)
             return HttpResponse('ok')
         except:
             return HttpResponse(status=500)
@@ -195,13 +224,14 @@ def logout_user(request):
     return redirect("/")
 
 
-def check_room_time(classroom,time_start,time_end):
+def check_room_time(classroom,time_start,time_end,date):
     termins = list(Termin.objects.filter(classroom=classroom).all())
 
     for item in termins:
+        
         if((time_start > item.time_start and time_start < item.time_end)
-           or 
-           (time_end >item.time_start and time_end < item.time_end)): return True
+            or 
+            (time_end >item.time_start and time_end < item.time_end)): return True
 
     return False
         
@@ -226,6 +256,11 @@ def create_termin(request, id):
             classroom = json_data['classroom'] 
             type = json_data['type']
             description = json_data['description']
+            
+            
+            auto_register = json_data['auto_register']
+            
+            capacita = json_data['capacita']
 
             classroom_instance = Classrooms.objects.filter(name=classroom).first()
             course_instance = Course.objects.filter(id_course=id).first()
@@ -235,7 +270,7 @@ def create_termin(request, id):
                                         time_end=time_end,date=date,
                                         weekday=weekday,max_points=max_points,
                                         type=type, id_course=course_instance,
-                                        id_classroom=classroom_instance, description=description)
+                                        id_classroom=classroom_instance, description=description,capacita=capacita,auto_register=auto_register)
             except:
                 print("error create course")    
 
@@ -380,17 +415,18 @@ def update_termin(request,id_termin):
     if request.method == 'POST':
         try:
             json_data = json.loads(request.body)
+            termin_instance = Termin.objects.filter(id_termin=id_termin).first()
 
-            name = json_data['name']  
-            repeted = json_data['repeted']  
-            time_start = json_data['time_start']  
-            time_end = json_data['time_end']  
-            date = json_data['date']  
-            weekday = json_data['weekday'] 
-            max_points = json_data['max_points'] 
-            classroom = json_data['classroom'] 
-            type = json_data['type']
-            description = json_data['description']
+            name = json_data.get('name') if json_data.get('name') != None else termin_instance.name
+            repeted = json_data.get('repeted') if json_data.get('repeted') != None else termin_instance.repeted 
+            time_start = json_data.get('time_start') if json_data.get('time_start') != None else termin_instance.time_start 
+            time_end = json_data.get('time_end') if json_data.get('time_end') != None else termin_instance.time_end 
+            date = json_data.get('date') if json_data.get('date') != None else termin_instance.date  
+            weekday = json_data.get('weekday') if json_data.get('weekday') != None else termin_instance.weekday
+            max_points = json_data.get('max_points') if json_data.get('max_points') != None else termin_instance.max_points
+            classroom = json_data.get('classroom') if json_data.get('classroom') != None else termin_instance.classroom
+            type = json_data.get('type') if json_data.get('type') != None else termin_instance.type
+            description = json_data.get('description') if json_data.get('description') != None else termin_instance.description
             
             
             classroom_instance = Classrooms.objects.filter(name=classroom).first()
@@ -465,3 +501,25 @@ def add_lector_to_course(request):
             return HttpResponse('ok')
         except:
             return HttpResponse('error create teacher_course object',status=500)
+
+
+@csrf_exempt   
+def delete_lector_course(request):
+    if request.method == "POST":
+        
+        json_data = json.loads(request.body)
+        
+        id_person = json_data['id_person']
+        id_course = json_data['id_course']
+        
+        try:
+            Teacher_Course.objects.filter(id_teacher=id_person,id_course=id_course).delete()
+            return HttpResponse('ok')
+        except:
+            return HttpResponse('error delete teacher_course object',status=500)
+
+
+def get_garant_courses(request,id_person):
+    courses = list(Course.objects.filter(id_person=id_person).all())
+    return courses
+    
