@@ -38,12 +38,11 @@ const UserList = () => {
         setUserToEdit(user)
         setModalOpen(true)
     }
-
-    useEffect(() => {
-        if (!modalOpen) {
-            downloadUsers()
-        }
-    }, [modalOpen])
+    const onEditUser = (editedUser) => {
+        setUsers(prev => {
+            return prev.map(el => el.id_person === userToEdit.id_person ? editedUser : el)
+        })
+    }
 
     return (
         <div>
@@ -83,7 +82,7 @@ const UserList = () => {
                     </tbody>
                 </Table>
 
-                <EditUserModal isModalOpen={modalOpen} setModalOpen={setModalOpen} user={userToEdit} isEditingLoggedUser={false}/>
+                <EditUserModal isModalOpen={modalOpen} setModalOpen={setModalOpen} user={userToEdit} sideEffectOnChange={onEditUser}/>
             </div>
         </div>
         </div>

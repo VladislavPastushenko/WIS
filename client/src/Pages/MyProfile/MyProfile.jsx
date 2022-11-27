@@ -22,6 +22,10 @@ const MyProfile = () => {
         navigate('/login')
     }
 
+    const onEditUser = (newUser) => {
+        setLoggedUser({...loggedUser, ...newUser})
+    }
+
     let role;
 
     switch(loggedUser.role) {
@@ -79,7 +83,7 @@ const MyProfile = () => {
             <Button variant='danger' onClick={() => {logout()}}>
                 Logout
             </Button>
-            <EditUserModal isModalOpen={modalOpen} setModalOpen={setModalOpen} user={loggedUser} isEditingLoggedUser={true}/>
+            <EditUserModal isModalOpen={modalOpen} setModalOpen={setModalOpen} user={loggedUser} sideEffectOnChange={onEditUser}/>
         </div>
     )
 }

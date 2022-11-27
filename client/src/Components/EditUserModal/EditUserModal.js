@@ -6,7 +6,7 @@ import createRequest from '../../Services/CreateRequest';
 import { toast , ToastContainer} from 'react-toastify';
 import { useContext } from 'react';
 import { LoggedUserContext } from '../../Context/LoggedUser';
-const EditUserModal = ({isModalOpen, setModalOpen, user, isEditingLoggedUser = false}) => {
+const EditUserModal = ({isModalOpen, setModalOpen, user, sideEffectOnChange}) => {
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
     const onSubmit = (e) => {
         e.preventDefault()
@@ -28,7 +28,7 @@ const EditUserModal = ({isModalOpen, setModalOpen, user, isEditingLoggedUser = f
             body: JSON.stringify(data)
         })
         .then(res => {
-            if (isEditingLoggedUser) setLoggedUser(data)
+            if (sideEffectOnChange) sideEffectOnChange(data)
             toast.success('User was successfully edited')
             setModalOpen(false)
         })
