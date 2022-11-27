@@ -4,6 +4,7 @@ import AddCourseButton from "../../Components/AddCourseButton/AddCourseButton";
 import { LoggedUserContext } from "../../Context/LoggedUser";
 import ManageAllCourses from "./ManageAllCourses/ManageAllCourses";
 import ManageGarantedCourses from "./ManageGarantedCourses/ManageGarantedCourses";
+import MyCourses from "./MyCourses/MyCourses";
 
 
 const Courses = () => {
@@ -17,13 +18,13 @@ const Courses = () => {
     }, [loggedUser])
 
     if (loggedUser.role === 'a')
-    return (<><ManageAllCourses/></>)
+    return (<ManageAllCourses/>)
 
     if (loggedUser.role === 'g')
     return (<ManageGarantedCourses/>)
 
-    if (loggedUser.role === 'g' || loggedUser.role === 'c')
-    return (<AddCourseButton/>)
+    if (loggedUser.role === 's')
+    return (<MyCourses/>)
 }
 
 export default Courses

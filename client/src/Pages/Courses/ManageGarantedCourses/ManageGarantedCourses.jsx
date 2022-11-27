@@ -1,5 +1,6 @@
 import './ManageGarantedCourses.scss'
 import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
 import { useContext, useEffect, useState } from 'react';
 import createRequest from '../../../Services/CreateRequest';
 import LoadingIcon from '../../../Components/LoadingIcon/LoadingIcon';
@@ -10,6 +11,7 @@ const ManageGarantedCourses = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [courseToEdit, setCourseToEdit] = useState({})
     const [modalOpen, setModalOpen] = useState(false)
+    const [addModalOpen, setAddModalOpen] = useState(false)
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
     useEffect(() => {
         console.log(loggedUser)
@@ -41,6 +43,10 @@ const ManageGarantedCourses = () => {
         setCourses(prev => {
             return prev.map(el => el.id_course === editedCourse.id_course ? editedCourse : el)
         })
+    }
+
+    const onAddCourse = (newCourse) => {
+        setCourses(prev => [...prev, newCourse])
     }
 
     return (
@@ -85,8 +91,11 @@ const ManageGarantedCourses = () => {
                         }
                     </tbody>
                 </Table>
+
+                <Button onClick={() => {setAddModalOpen(true)}}> Add course </Button>
             </div>
             <EditCourseModal isModalOpen={modalOpen} setModalOpen={setModalOpen} course={courseToEdit} sideEffectOnChange={onEditCourse}/>
+            <EditCourseModal isModalOpen={addModalOpen} setModalOpen={setAddModalOpen} sideEffectOnChange={onAddCourse}/>
         </div>
         </>
         </>

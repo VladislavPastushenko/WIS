@@ -40,13 +40,13 @@ const EditCourseModal = ({isModalOpen, setModalOpen, course, sideEffectOnChange}
 
 
         createRequest({
-            path: '/course-edit/' + course.id_course,
+            path: course ? '/course-edit/' + course.id_course : 'create-course',
             method: 'POST',
             body: JSON.stringify(data)
         })
         .then(res => {
             if (sideEffectOnChange) sideEffectOnChange({...data, garant: garants.find(el => el.id_person === data.garant_id)})
-            toast.success('Course was successfully edited')
+            toast.success(course ? 'Course was successfully edited' : 'Course was successfully added')
             setModalOpen(false)
         })
         .catch(err => {
