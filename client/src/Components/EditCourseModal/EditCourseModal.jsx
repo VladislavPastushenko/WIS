@@ -149,7 +149,7 @@ const EditCourseModal = ({isModalOpen, setModalOpen, course, sideEffectOnChange}
                             {isLoadingGarants ?
                             <p><LoadingIcon/></p>
                             :
-                            <Form.Select name='garant_id' defaultValue={course.approved}>
+                            <Form.Select name='garant_id' defaultValue={course.garant_id}>
                                 {garants.map(el =>
                                     <option  value={el.id_person} key={el.id_person + 'garant'}>
                                         {el.firstname} {el.surname}
