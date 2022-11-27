@@ -14,7 +14,6 @@ const ManageGarantedCourses = () => {
     const [addModalOpen, setAddModalOpen] = useState(false)
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
     useEffect(() => {
-        console.log(loggedUser)
         if (loggedUser.id_person) {
             setIsLoading(true);
             createRequest({
@@ -23,7 +22,6 @@ const ManageGarantedCourses = () => {
             })
             .then(res => res.json())
             .then(res => {
-                console.log(res)
                 setIsLoading(false)
                 setCourses(res)
             })
@@ -46,6 +44,7 @@ const ManageGarantedCourses = () => {
     }
 
     const onAddCourse = (newCourse) => {
+        console.log(newCourse)
         setCourses(prev => [...prev, newCourse])
     }
 

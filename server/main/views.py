@@ -308,31 +308,31 @@ def points_of_termin(request, id):
         person_points.append(person_instance)
     return JsonResponse(person_points, safe = False)
 
+@csrf_exempt
 def create_course(request):
     if request.method == 'POST':
         try:
+            user = authorize_by_request(request=request)
             active_person = Person.objects.filter(user=request.user).first()
             if active_person.is_garant == False:
                 return HttpResponse(status=500)
-
             json_data = json.loads(request.body)
 
-            abbrv = json_data['abbrv']  
-            title = json_data['title']  
-            description = json_data['description']  
-            credits = json_data['credits']  
-            max_persons = json_data['max_persons']  
-            garant = json_data['username'] 
+            abbrv = json_data['abbrv']
+            title = json_data['title']
+            description = json_data['description']
+            credits = json_data['credits']
+            max_persons = json_data['max_persons']
+            garant = user
 
             user_instance = User.objects.filter(username=garant).first()
             person_instance = Person.objects.filter(user=user_instance).first()
-
             try:
                 Course.objects.create(abbrv=abbrv,title=title,description=description,
                                         credits=credits,max_persons=max_persons,
                                         garant_id=person_instance,approved=0)
             except:
-                print("error create course")    
+                print("error create course")
 
             return HttpResponse('ok')
 
