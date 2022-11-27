@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView,PasswordChangeView,P
 
 #basic
 urlpatterns = [
-    
+
     path('login', views.login_user, name='login'),
     path('logout',views.logout_user, name='logout'),
     path('register', views.register_user, name='register'),
@@ -35,6 +35,7 @@ urlpatterns = [
     
     #room path
     path('add-room',views.add_room,name='add-room'),
+    path('get-all-classrooms',views.get_classrooms,name='get-all-classrooms'),
     path('delete-room/<int:id_room>',views.delete_room,name='delete-room'),
     
     #check room in time

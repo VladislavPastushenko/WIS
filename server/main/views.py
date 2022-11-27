@@ -37,7 +37,12 @@ def authorize_by_request(request):
 
 def get_courses(request):
     courses = list(Course.objects.values())
-    return JsonResponse(courses, safe = False)
+    courses_list = list()
+    for item in courses:
+        count = Student_Course.objects.filter(id_course=item['id_course']).count()
+        item['count'] = count
+        courses_list.append(item)
+    return JsonResponse(courses_list, safe = False)
 
 def get_users(request):
     role = request.GET.get('role')
@@ -124,7 +129,7 @@ def profile_edit(request, id):
             elif active_person.is_admin == False and person_instance.id_person != active_person.id_person:
                 return HttpResponse(status=500)
 
-            User.objects.filter(email=person_instance.email).update(username=username, password=password)
+            User.objects.filter(email=person_instance.email).update(username=username, email=email, password=password)
 
             Person.objects.filter(id_person=person_instance.id_person).update(firstname=firstname,
                                                                               surname=surname,
@@ -263,7 +268,10 @@ def points_of_termin(request, id):
     person_points = list()
     for item in user_termin:
         person_instance = Person.objects.filter(id_person=item['id_student_id']).values()[0]
-        person_instance.update({'points' : item['points']})
+        user = User.objects.filter(email=person_instance.email).first()
+        person_instance['username'] = user.username
+        person_instance['password'] = user.password
+        person_instance['points'] = item['points']
         person_points.append(person_instance)
     return JsonResponse(person_points, safe = False)
 
@@ -405,6 +413,10 @@ def update_termin(request,id_termin):
 def check_room(name):
     if(Classrooms.objects.filter(name=name).first()): return True
     return False
+
+def get_classrooms(request):
+    classrooms = list(Classrooms.objects.values())
+    return JsonResponse(classrooms, safe = False)
 
 @csrf_exempt
 def add_room(request):
