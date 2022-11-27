@@ -18,7 +18,6 @@ urlpatterns = [
     path('points-of-termin/<int:id>', views.points_of_termin, name='points-of-termin'),
 
     path('create-course',views.create_course, name='create_course'),
-    path('course-edit/<int:id>', views.course_edit, name='course_edit'),    
     path('get-courses-by-user-id/<int:id>',views.get_course_user,name='get-course-user'),
     path('get-courses', views.get_courses, name='get-courses'),
 
@@ -39,8 +38,10 @@ urlpatterns = [
     path('get-all-classrooms',views.get_classrooms,name='get-all-classrooms'),
     path('delete-room/<int:id_room>',views.delete_room,name='delete-room'),
     
-    #check room in time
     path('add-lector-to-course',views.add_lector_to_course,name='add-lector-to-course'),
+    path('delete-lector-to-course',views.delete_lector_course,name='delete-lector-to-course'),
+    
+    path('get-lector-courses/<int:id_person>',views.get_lector_courses,name='get-lector-course')
     
     
 ]
