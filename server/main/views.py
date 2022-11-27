@@ -354,6 +354,15 @@ def get_course_user(request,id):
         course = Course.objects.filter(id_course = item['id_course_id']).values()[0]
         course['lectors'] = list(Teacher_Course.objects.filter(id_course=item['id_course_id']).values())
         course['garant'] = list(Person.objects.filter(id_person=course['garant_id']).values())[0]
+        termins = list(Termin.objects.filter(id_course=item['id_course_id']).values())
+        user_termins = list()
+        for i in termins:
+            termin_register = User_Termin.objects.filter(id_termin=i['id_termin'], id_student=id).values()
+            if len(termin_register)!=0:
+                user_termins.append(termin_register[0])
+                termins.remove(Termin.objects.filter(id_termin=i['id_termin']).values()[0])
+        course['registered_termins'] = user_termins
+        course['not_registered_termins'] = termins
         course_list.append(course)
     return JsonResponse(course_list, safe = False)
 
