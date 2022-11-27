@@ -38,7 +38,6 @@ def authorize_by_request(request):
 
 def get_courses(request):
     courses = list(Course.objects.values())
-    
     for course in courses:
         count = Student_Course.objects.filter(id_course=course['id_course']).count()
         course['count'] = count
@@ -141,10 +140,11 @@ def profile_edit(request, id):
         except:
             return HttpResponse(status=500)
 
-
+@csrf_exempt
 def course_edit(request, id):
     if request.method == 'POST':
         try:
+            user = authorize_by_request(request=request)
             person_instance = Person.objects.filter(user=request.user).first()
             if person_instance.is_garant == False:
                 return HttpResponse(status=500)
@@ -159,15 +159,13 @@ def course_edit(request, id):
             max_persons = json_data.get('max_persons') if json_data.get('max_persons') != None else course_instance.max_persons
             approved = json_data.get('approved') if json_data.get('approved') != None else course_instance.approved
             type = json_data.get('type') if json_data.get('type') != None else course_instance.type
-
-
-            Course.objects.filter(id_course=course_instance.id_course).update(abbrv=abbrv,
-                                                                              title=title,
-                                                                              description=description,
-                                                                              max_persons=max_persons,
-                                                                              credits=credits,
-                                                                              approved=approved, 
-                                                                              type=type)
+            Course.objects.filter(id_course=id).update(abbrv=abbrv,
+                                                                    title=title,
+                                                                    description=description,
+                                                                    max_persons=max_persons,
+                                                                    credits=credits,
+                                                                    approved=approved,
+                                                                    type=type)
             return HttpResponse('ok')
         except:
             return HttpResponse(status=500)

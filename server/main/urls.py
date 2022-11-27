@@ -18,6 +18,7 @@ urlpatterns = [
     path('points-of-termin/<int:id>', views.points_of_termin, name='points-of-termin'),
 
     path('create-course',views.create_course, name='create_course'),
+    path('course-edit/<int:id>', views.course_edit, name='course_edit'),    
     path('get-courses-by-user-id/<int:id>',views.get_course_user,name='get-course-user'),
     path('get-courses', views.get_courses, name='get-courses'),
 
