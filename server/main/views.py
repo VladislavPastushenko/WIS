@@ -322,14 +322,14 @@ def create_course(request):
             description = json_data['description']
             credits = json_data['credits']
             max_persons = json_data['max_persons']
-            garant = user
+            #garant = user
 
-            user_instance = User.objects.filter(username=garant).first()
-            person_instance = Person.objects.filter(user=user_instance).first()
+            # user_instance = User.objects.filter(user=request.user).first()
+            # person_instance = Person.objects.filter(user=user_instance).first()
             try:
                 Course.objects.create(abbrv=abbrv,title=title,description=description,
                                         credits=credits,max_persons=max_persons,
-                                        garant_id=person_instance,approved=0)
+                                        garant_id=active_person,approved=0)
             except:
                 print("error create course")
 
