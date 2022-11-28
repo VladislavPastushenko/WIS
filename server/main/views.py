@@ -455,8 +455,10 @@ def remove_course(request,id_course):
     except:
         return HttpResponse('error')
 
+@csrf_exempt
 def update_termin(request,id_termin):
     if request.method == 'POST':
+        user = authorize_by_request(request=request)
         try:
             json_data = json.loads(request.body)
             termin_instance = Termin.objects.filter(id_termin=id_termin).first()
@@ -468,20 +470,28 @@ def update_termin(request,id_termin):
             date = json_data.get('date') if json_data.get('date') != None else termin_instance.date  
             weekday = json_data.get('weekday') if json_data.get('weekday') != None else termin_instance.weekday
             max_points = json_data.get('max_points') if json_data.get('max_points') != None else termin_instance.max_points
-            classroom = json_data.get('classroom') if json_data.get('classroom') != None else termin_instance.classroom
+            classroom_id = json_data.get('classroom_id') if json_data.get('classroom_id') != None else termin_instance.id_classroom
             type = json_data.get('type') if json_data.get('type') != None else termin_instance.type
             description = json_data.get('description') if json_data.get('description') != None else termin_instance.description
-            
-            
-            classroom_instance = Classrooms.objects.filter(name=classroom).first()
+            auto_regist = json_data.get('auto_register') if json_data.get('auto_register') != None else termin_instance.auto_regist
+
+            classroom_instance = Classrooms.objects.filter(id_classroom=classroom_id).first()
 
             try:
-                Termin.objects.filter(id_termin=id_termin).update(name=name,repeted=repeted,time_start=time_start,
-                                            time_end=time_end,date=date,
-                                            weekday=weekday,max_points=max_points,
-                                            type=type,id_classroom=classroom_instance, description=description)
+                Termin.objects.filter(id_termin=id_termin).update(name=name,
+                                            repeted=repeted,
+                                            time_start=time_start,
+                                            time_end=time_end,
+                                            date=date,
+                                            weekday=weekday,
+                                            max_points=max_points,
+                                            type=type,
+                                            id_classroom=classroom_instance,
+                                            description=description,
+                                            auto_regist=auto_regist
+                                            )
             except:
-                return HttpResponse(status=500)            
+                return HttpResponse(status=500)
             return HttpResponse('ok')
 
         except:

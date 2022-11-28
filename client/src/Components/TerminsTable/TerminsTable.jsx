@@ -4,9 +4,17 @@ import { useContext, useEffect, useState } from 'react';
 import createRequest from '../../Services/CreateRequest';
 import LoadingIcon from '../LoadingIcon/LoadingIcon';
 import { LoggedUserContext } from '../../Context/LoggedUser';
+import EditTerminModal from '../EditTeminModal/EditTerminModal';
 
 function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
+    const [terminToEdit, setTerminToEdit] = useState({})
+    const [isModalEditOpened, setIsModalEditOpened] = useState(false)
+
+    const editTermin = (termin) => {
+        setTerminToEdit(termin);
+        setIsModalEditOpened(true)
+    }
     return (
         <>
         <div align='center'>
@@ -34,7 +42,7 @@ function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
                                         {repeated && <td>{el.weekday}</td>}
                                         {!repeated && <td>{el.date}</td>}
                                         <td>{el.max_points}</td>
-                                        {(loggedUser.role === 'a' || loggedUser.role === 'g') && <td><a href="#">Edit</a></td>}
+                                        {(loggedUser.role === 'a' || loggedUser.role === 'g') && <td><a href="#" onClick={() => {editTermin(el)}}> Edit</a></td>}
                                         {(loggedUser.role === 'a' || loggedUser.role === 'g') && <td><a href="#">Users</a></td>}
                                         {(loggedUser.role === 's') && <th style={{width: '50px'}}> 0 </th>}
                                     </tr>
@@ -42,6 +50,7 @@ function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
                             }
                     </tbody>
                 </Table>
+                <EditTerminModal isModalOpen={isModalEditOpened} setModalOpen={setIsModalEditOpened} sideEffectOnChange={onChangeSideEffect} termin={terminToEdit}/>
             </div>
         </div>
         </>
