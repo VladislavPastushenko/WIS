@@ -238,9 +238,10 @@ def check_room_time(classroom,time_start,time_end,date):
         
 
 @csrf_exempt
-def create_termin(request, id):
+def create_termin_for_course(request, id):
     if request.method == 'POST':
         try:
+            user = authorize_by_request(request=request)
             active_person = Person.objects.filter(user=request.user).first()
             if active_person.is_garant == False:
                 return HttpResponse(status=500)
@@ -254,7 +255,7 @@ def create_termin(request, id):
             date = json_data['date']  
             weekday = json_data['weekday'] 
             max_points = json_data['max_points'] 
-            classroom = json_data['classroom'] 
+            classroom = json_data['classroom_id'] 
             type = json_data['type']
             description = json_data['description']
             
@@ -262,7 +263,7 @@ def create_termin(request, id):
             
             capacita = json_data['capacita']
 
-            classroom_instance = Classrooms.objects.filter(name=classroom).first()
+            classroom_instance = Classrooms.objects.filter(id_classroom=classroom).first()
             course_instance = Course.objects.filter(id_course=id).first()
 
             try:
@@ -294,6 +295,15 @@ def get_points_for_all_termins(request, id_person, id_course):
         item.update({'points' : termin.get('points')})
         termin_points.append(item)
     return JsonResponse(termin_points, safe = False)
+
+def add_points_to_user(request, id_person, id_termin):
+    json_data = json.loads(request.body)
+    points = json_data['points'] 
+    max_points = Termin.objects.filter(id_termin=id_termin).values()[0]['max_points']
+    if points > max_points:
+        return HttpResponse(status=500)
+    User_Termin.objects.filter(id_student=id_person, id_termin=id_termin).update(points=points)
+
 
 def points_of_termin(request, id):
     termin_instance = Termin.objects.filter(id_termin=id).first()
