@@ -36,15 +36,15 @@ urlpatterns = [
     path('remove-user-from-course/<int:id_person>/<int:id_course>', views.remove_user_from_course, name='remove-user-from-course'),
     path('add-user-to-termin/<int:id_person>/<int:id_termin>', views.add_user_to_termin, name='add-user-to-termin'),
     path('remove-user-from-termin/<int:id_person>/<int:id_termin>', views.remove_user_from_termin, name='remove-user-from-termin'),
-    
+
     #room path
     path('add-room',views.add_room,name='add-room'),
     path('get-all-classrooms',views.get_classrooms,name='get-all-classrooms'),
     path('delete-room/<int:id_room>',views.delete_room,name='delete-room'),
-    
+
     path('add-lector-to-course',views.add_lector_to_course,name='add-lector-to-course'),
     path('delete-lector-to-course',views.delete_lector_course,name='delete-lector-to-course'),
-    
+
     path('get_garant_courses/<int:id_person>',views.get_garant_courses,name='get_garant_courses')
 ]
 
