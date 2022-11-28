@@ -22,6 +22,7 @@ urlpatterns = [
     path('points-of-termin/<int:id>', views.points_of_termin, name='points-of-termin'),
     path('add-points-to-user/<int:id_person>/<int:id_termin>', views.add_points_to_user, name='add-points-to-user'),
     path('update-termin/<int:id_termin>',views.update_termin,name='update_termin'),
+    path('remove-termin/<int:id_termin>',views.remove_termin,name='remove-termin'),
 
     path('course-edit/<int:id>', views.course_edit, name='course_edit'),
     path('create-course',views.create_course, name='create_course'),
