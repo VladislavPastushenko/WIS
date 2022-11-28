@@ -14,6 +14,7 @@ import createRequest from "./Services/CreateRequest";
 import Admin from "./Pages/Admin/Admin";
 import UserList from "./Pages/UserList/UserList";
 import Courses from "./Pages/Courses/Courses";
+import CourseTermins from "./Pages/CourseTermins/CourseTermins";
 
 export default function App() {
   const [loggedUser, setLoggedUser] = useState(loggedUserDefault)
@@ -49,6 +50,7 @@ export default function App() {
             <>
               <Route path="/admin" element={<Admin />}/>
               <Route path="/user-list" element={<UserList />}/>
+              <Route path="/termins/:id" element={<CourseTermins />}/>
             </>
           </Routes>
         </Container>
