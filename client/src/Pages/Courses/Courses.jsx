@@ -24,6 +24,9 @@ const Courses = () => {
 
     if (loggedUser.role === 's')
     return (<MyCourses/>)
+
+    if (loggedUser.role === 'l')
+    return (<MyCourses/>)
 }
 
 export default Courses

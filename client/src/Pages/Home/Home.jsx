@@ -127,7 +127,7 @@ function Home() {
                                 return (
                                     <tr key={el.abbrv}>
                                         <td>{el.abbrv}</td>
-                                        <td><a href={`/${el.aabrv}`}>{el.title}</a></td>
+                                        <td><a href={`/course/${el.id_course}`}>{el.title}</a></td>
                                         <td>{el.credits}</td>
                                         <td>{el.garant.firstname} {el.garant.surname}</td>
                                         {loggedUser.role === 's' && <th style={{width: '100px'}}>

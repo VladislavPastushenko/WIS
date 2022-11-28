@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import LoadingIcon from '../../Components/LoadingIcon/LoadingIcon';
 import createRequest from '../../Services/CreateRequest';
 import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
 import './UserList.scss'
 import EditUserModal from '../../Components/EditUserModal/EditUserModal';
+import { toast , ToastContainer} from 'react-toastify';
+
 
 const UserList = () => {
     const [users, setUsers] = useState([])
@@ -43,8 +46,27 @@ const UserList = () => {
         })
     }
 
+    const onDeleteUser = (deletedUser) => {
+
+        createRequest({
+            path: `/remove-user/${deletedUser.id_person}`,
+            method: 'DELETE'
+        })
+        .then(res => {
+            toast.success('User was successfully deleted')
+            setUsers(prev => {
+                return prev.filter(el => el.id_person !== deletedUser.id_person)
+            })
+        })
+        .catch(err => {
+            toast.error('Something went wrong')
+            console.error(err)
+        })
+    }
+
     return (
         <div>
+            <ToastContainer/>
             <h2>
                 User List
             </h2>
@@ -58,12 +80,13 @@ const UserList = () => {
                             <th>Last name</th>
                             <th>Role</th>
                             <th style={{width: '50px'}}></th>
+                            <th style={{width: '50px'}}></th>
                         </tr>
                     </thead>
                     <tbody>
                         {isLoading ?
                             <tr>
-                                <td colSpan={5} className={'text-center'}><LoadingIcon/></td>
+                                <td colSpan={6} className={'text-center'}><LoadingIcon/></td>
                             </tr>
                             :
                             users.map((el, idx) => {
@@ -74,6 +97,7 @@ const UserList = () => {
                                         <td>{el.surname}</td>
                                         <td>{el.role}</td>
                                         <td><a href='#' onClick={() => {editUserModalOpen(el)}}>Edit</a></td>
+                                        <td><a href='#' onClick={() => {onDeleteUser(el)}} className={'removeLink'}> Remove </a></td>
                                     </tr>
                                 )
                             })

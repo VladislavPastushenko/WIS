@@ -12,14 +12,9 @@ const Header = () => {
     return (
         <Navbar bg="light" expand="lg">
             <Container className="navbar-container">
-                <Navbar.Brand href="/">
-                    <h4 className="fw-normal">
-                        Home page
-                    </h4>
-                </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="ms-auto">
+                <Nav className="me-auto">
                     <Nav.Link href="/"> Home </Nav.Link>
                     {!loggedUser.role &&
                     <>

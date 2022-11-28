@@ -437,12 +437,12 @@ def remove_user_from_course(request, id_person, id_course):
         for item in termins:
             User_Termin.objects.filter(id_student=person, id_termin=item['id_termin']).delete()
         return HttpResponse('ok')
-    
+
+@csrf_exempt
 def remove_user(request,id_persone):
     if request.method == 'DELETE':
         try:
             Course.objects.filter(garant_id=id_persone).update(garant_id = '')
-            
             teacher_course_list = list(Teacher_Course.objects.filter(id_teacher=id_persone).all())
             student_course_list = list(Student_Course.objects.filter(id_student=id_persone).all())
             user_termin_list = list(User_Termin.objects.filter(id_student=id_persone).all())
@@ -454,24 +454,25 @@ def remove_user(request,id_persone):
             User.objects.filter(id_persone=id_persone).delete()
             Person.objects.filter(id_persone=id_persone).delete()
             return HttpResponse('ok')
-        
+
         except:
             return HttpResponse('error')
- 
+
+@csrf_exempt
 def remove_course(request,id_course):
     if request.method == 'DELETE':
         try:
             termin_list = list(Termin.objects.filter(id_course=id_course).all())
             student_course_list = list(Student_Course.objects.filter(id_course=id_course).all())
             teacher_course_list = list(Teacher_Course.objects.filter(id_course=id_course).all())
-            
+
             for item in termin_list: item.delete()
             for item in student_course_list: item.delete()
             for item in teacher_course_list: item.delete()
 
-            
+
             Course.objects.filter(id_course=id_course).delete()
-            return HttpResponse('ok')   
+            return HttpResponse('ok')
 
         except:
             return HttpResponse('error')
@@ -517,8 +518,7 @@ def update_termin(request,id_termin):
 
         except:
             return HttpResponse(status=500)
-        
-        
+
 
 def check_room(name):
     if(Classrooms.objects.filter(name=name).first()): return True

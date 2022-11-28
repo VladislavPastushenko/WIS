@@ -76,7 +76,7 @@ const ManageGarantedCourses = () => {
                                 return (
                                     <tr key={el.abbrv}>
                                         <td>{el.abbrv}</td>
-                                        <td><a href={`/${el.aabrv}`}>{el.title}</a></td>
+                                        <td><a href={`/course/${el.id_course}`}>{el.title}</a></td>
                                         <td>{el.garant.firstname} {el.garant.surname}</td>
                                         <td><a href={`#`} onClick={() => {editCourseModalOpen(el)}}>Edit</a></td>
                                         <td><a href={`/termins/${el.id_course}`}>Termins</a></td>

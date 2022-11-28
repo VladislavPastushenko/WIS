@@ -7,7 +7,7 @@ import { LoggedUserContext } from '../../Context/LoggedUser';
 import EditTerminModal from '../EditTeminModal/EditTerminModal';
 import { toast , ToastContainer} from 'react-toastify';
 
-function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
+function TerminsTable({termins=[], repeated=false, onChangeSideEffect, onDeleteTermin}) {
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
     const [terminToEdit, setTerminToEdit] = useState({})
     const [isModalEditOpened, setIsModalEditOpened] = useState(false)
@@ -45,6 +45,22 @@ function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
             toast.error('Something went wrong')
         })
     }
+
+    const deleteTermin = (deletedTermin) => {
+
+        createRequest({
+            path: `/remove-termin/${deletedTermin.id_termin}`,
+            method: 'DELETE'
+        })
+        .then(res => {
+            toast.success('Termin was successfully deleted')
+            onDeleteTermin(deletedTermin)
+        })
+        .catch(err => {
+            toast.error('Something went wrong')
+            console.error(err)
+        })
+    }
     return (
         <>
         <ToastContainer/>
@@ -60,9 +76,10 @@ function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
                             {!repeated && <th style={{width: '75px'}}>Date</th>}
                             <th style={{width: '60px'}}>Max-points</th>
                             {(loggedUser.role === 'a' || loggedUser.role === 'g') && <th style={{width: '50px'}}></th>}
-                            {(loggedUser.role === 'a' || loggedUser.role === 'g') && <th style={{width: '50px'}}></th>}
+                            {(loggedUser.role !== 's') && <th style={{width: '50px'}}></th>}
                             {(loggedUser.role === 's') && <th style={{width: '50px'}}>Obtained points</th>}
                             {(loggedUser.role === 's') && <th style={{width: '50px'}}>Register</th>}
+                            {(loggedUser.role === 'g' || loggedUser.role === 'a') && <th style={{width: '50px'}}></th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -75,13 +92,14 @@ function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
                                         {!repeated && <td>{el.date}</td>}
                                         <td>{el.max_points}</td>
                                         {(loggedUser.role === 'a' || loggedUser.role === 'g') && <td><a href="#" onClick={() => {editTermin(el)}}> Edit</a></td>}
-                                        {(loggedUser.role === 'a' || loggedUser.role === 'g') && <td><a href={"/termins-users/" + el.id_termin}>Users</a></td>}
+                                        {(loggedUser.role !== 's') && <td><a href={"/termins-users/" + el.id_termin}>Users</a></td>}
                                         {(loggedUser.role === 's') && <td> {el.points} </td>}
                                         {(loggedUser.role === 's') && <td> {el.registered ?
                                             <a href='#' onClick={() => {unregisterUserFromTermin(el)}}> Unregister </a>
                                             :
                                             <a href='#' onClick={() => {registerUserToTermin(el)}}> Register</a>
                                         } </td>}
+                                        {(loggedUser.role === 'g' || loggedUser.role === 'a') && <td><a href='#' onClick={() => {deleteTermin(el)}} className={'removeLink'}> Remove </a></td>}
                                     </tr>
                                 ))
                             }

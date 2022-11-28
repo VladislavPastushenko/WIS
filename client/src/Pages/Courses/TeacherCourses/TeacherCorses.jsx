@@ -1,4 +1,4 @@
-import './MyCourses.scss'
+import './TeacherCourses.scss'
 import Table from 'react-bootstrap/Table';
 import { useContext, useEffect, useState } from 'react';
 import createRequest from '../../../Services/CreateRequest';
@@ -6,7 +6,7 @@ import LoadingIcon from '../../../Components/LoadingIcon/LoadingIcon';
 import EditCourseModal from '../../../Components/EditCourseModal/EditCourseModal';
 import { LoggedUserContext } from '../../../Context/LoggedUser';
 
-const MyCourses = () => {
+const TeacherCourses = () => {
     const [courses, setCourses] = useState([])
     const [isLoading, setIsLoading] = useState(true)
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
@@ -19,16 +19,7 @@ const MyCourses = () => {
             })
             .then(res => res.json())
             .then(res => {
-                setCourses(
-                    res.map(el => (
-                        {...el,
-                        obtained_points: el.termins.reduce(
-                            (sum, p) => sum + p.points,
-                            0
-                        )
-                        })
-                    )
-                )
+                setCourses(res)
                 setIsLoading(false)
             })
             .catch(err => {
@@ -49,7 +40,6 @@ const MyCourses = () => {
                             <th>Title</th>
                             <th style={{width: '150px'}}>Credits</th>
                             <th style={{width: '200px'}}>Garant</th>
-                            <th style={{width: '80px'}}>Points</th>
                             <th style={{width: '80px'}}>Termins</th>
                         </tr>
                     </thead>
@@ -63,10 +53,9 @@ const MyCourses = () => {
                                 return (
                                     <tr key={el.abbrv}>
                                         <td>{el.abbrv}</td>
-                                        <td><a href={`/course/${el.id_course}`}>{el.title}</a></td>
+                                        <td><a href={`/${el.aabrv}`}>{el.title}</a></td>
                                         <td>{el.credits}</td>
                                         <td>{el.garant.firstname} {el.garant.surname}</td>
-                                        <td>{el.obtained_points} / 100 </td>
                                         <td><a href={`/termins/${el.id_course}`}>Termins</a></td>
                                     </tr>
                                 )
@@ -79,4 +68,4 @@ const MyCourses = () => {
         </>
     )
 }
-export default MyCourses
+export default TeacherCourses

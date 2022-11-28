@@ -5,6 +5,8 @@ import createRequest from '../../../Services/CreateRequest';
 import LoadingIcon from '../../../Components/LoadingIcon/LoadingIcon';
 import EditCourseModal from '../../../Components/EditCourseModal/EditCourseModal';
 import { LoggedUserContext } from '../../../Context/LoggedUser';
+import { toast , ToastContainer} from 'react-toastify';
+
 const ManageAllCourses = () => {
     const [courses, setCourses] = useState([])
     const [isLoading, setIsLoading] = useState(true)
@@ -41,9 +43,27 @@ const ManageAllCourses = () => {
         })
     }
 
+    const onDeleteCourse = (deletedCourse) => {
+
+        createRequest({
+            path: `/remove-course/${deletedCourse.id_course}`,
+            method: 'DELETE'
+        })
+        .then(res => {
+            toast.success('Course was successfully deleted')
+            setCourses(prev => {
+                return prev.filter(el => el.id_course !== deletedCourse.id_course)
+            })
+        })
+        .catch(err => {
+            toast.error('Something went wrong')
+            console.error(err)
+        })
+    }
+
     return (
         <>
-            <>
+        <ToastContainer/>
         <h2>
             Manage all courses
         </h2>
@@ -57,6 +77,7 @@ const ManageAllCourses = () => {
                             <th>Garant</th>
                             <th></th>
                             <th></th>
+                            <th style={{width: '50px'}}></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -69,10 +90,11 @@ const ManageAllCourses = () => {
                                 return (
                                     <tr key={el.abbrv}>
                                         <td>{el.abbrv}</td>
-                                        <td><a href={`/${el.aabrv}`}>{el.title}</a></td>
+                                        <td><a href={`/course/${el.id_course}`}>{el.title}</a></td>
                                         <td>{el.garant.firstname} {el.garant.surname}</td>
                                         <td><a href={`#`} onClick={() => {editCourseModalOpen(el)}}>Edit</a></td>
                                         <td><a href={`/termins/${el.id_course}`}>Termins</a></td>
+                                        <td><a href='#' onClick={() => {onDeleteCourse(el)}} className={'removeLink'}> Remove </a></td>
                                     </tr>
                                 )
                             })
@@ -82,7 +104,6 @@ const ManageAllCourses = () => {
             </div>
             <EditCourseModal isModalOpen={modalOpen} setModalOpen={setModalOpen} course={courseToEdit} sideEffectOnChange={onEditCourse}/>
         </div>
-        </>
         </>
     )
 }

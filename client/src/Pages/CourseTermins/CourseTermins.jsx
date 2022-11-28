@@ -48,6 +48,12 @@ const CourseTermins = () => {
     const onChangeTermin = (editedTermin) => {
         setTermins(prev => prev.map(el => editedTermin.id_termin === el.id_termin ? editedTermin : el))
     }
+
+    const onDeleteTermin = (editedTermin) => {
+        setTermins(prev => {
+            return prev.filter(el => el.id_termin !== editedTermin.id_termin)
+        })
+    }
     return(
         <>
             {isLoading ?
@@ -57,9 +63,9 @@ const CourseTermins = () => {
             :
             <>
                 <h4>Lectures</h4>
-                <TerminsTable termins={termins.filter(el => el.repeted)} repeated onChangeSideEffect={onChangeTermin}/>
+                <TerminsTable termins={termins.filter(el => el.repeted)} repeated onChangeSideEffect={onChangeTermin} onDeleteTermin={onDeleteTermin}/>
                 <h4>Other</h4>
-                <TerminsTable termins={termins.filter(el => !el.repeted)} onChangeSideEffect={onChangeTermin}/>
+                <TerminsTable termins={termins.filter(el => !el.repeted)} onChangeSideEffect={onChangeTermin} onDeleteTermin={onDeleteTermin}/>
                 {(loggedUser.role === 'a' || loggedUser.role === 'g') &&
                     <>
                         <Button onClick={() => {setAddTerminModalOpened(true)}}> Add termin </Button>
