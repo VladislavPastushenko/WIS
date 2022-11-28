@@ -292,14 +292,17 @@ def get_termins_by_course_id(request, id):
     termins = list(Termin.objects.filter(id_course=course_instance).values())
     return JsonResponse(termins, safe = False)
 
-def get_points_for_all_termins(request, id_person, id_course):
+def get_points_for_all_termins_by_course_id(request, id_person, id_course):
     course_instance = Course.objects.filter(id_course=id_course).first()
     termins = list(Termin.objects.filter(id_course=course_instance).values())
     person_instance = Person.objects.filter(id_person=id_person)
     termin_points = list()
     for item in termins:
-        termin = User_Termin.objects.filter(id_student=id_person,id_termin = item['id_termin']).values()[0]
-        item.update({'points' : termin.get('points')})
+        termin = User_Termin.objects.filter(id_student=id_person,id_termin = item['id_termin']).values()
+        if len(termin) != 0:
+            item['points'] = termin[0]
+        else:
+            item['points'] = None
         termin_points.append(item)
     return JsonResponse(termin_points, safe = False)
 
@@ -313,16 +316,15 @@ def add_points_to_user(request, id_person, id_termin):
 
 
 def points_of_termin(request, id):
-    termin_instance = Termin.objects.filter(id_termin=id).first()
     user_termin = list(User_Termin.objects.filter(id_termin=id).values())
 
     person_points = list()
     for item in user_termin:
         person_instance = Person.objects.filter(id_person=item['id_student_id']).values()[0]
-        user = User.objects.filter(email=person_instance.email).first()
+        user = User.objects.filter(email=person_instance['email']).first()
         person_instance['username'] = user.username
-        person_instance['password'] = user.password
         person_instance['points'] = item['points']
+        person_instance['termin'] = Termin.objects.filter(id_termin=id).values()[0]
         person_points.append(person_instance)
     return JsonResponse(person_points, safe = False)
 
