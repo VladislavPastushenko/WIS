@@ -16,6 +16,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 import json
 import base64
+from datetime import datetime
 
 # Create your views here.
 
@@ -245,37 +246,43 @@ def create_termin_for_course(request, id):
             active_person = Person.objects.filter(user=request.user).first()
             if active_person.is_garant == False:
                 return HttpResponse(status=500)
-
             json_data = json.loads(request.body)
-
-            name = json_data['name']  
-            repeted = json_data['repeted']  
-            time_start = json_data['time_start']  
-            time_end = json_data['time_end']  
-            date = json_data['date']  
-            weekday = json_data['weekday'] 
-            max_points = json_data['max_points'] 
-            classroom = json_data['classroom_id'] 
-            type = json_data['type']
-            description = json_data['description']
-            
-            auto_register = json_data['auto_register']
-            
-            capacita = json_data['capacita']
+            print(json_data)
+            name = json_data.get('name')
+            repeted = json_data.get('repeted')
+            time_start = json_data.get('time_start')
+            time_end = json_data.get('time_end')
+            date = json_data.get('date')
+            weekday = json_data.get('weekday')
+            max_points = json_data.get('max_points')
+            classroom = json_data.get('classroom_id')
+            type = json_data.get('type')
+            description = json_data.get('description')
+            auto_register = json_data.get('auto_register')
+            capacita = json_data.get('capacita')
 
             classroom_instance = Classrooms.objects.filter(id_classroom=classroom).first()
             course_instance = Course.objects.filter(id_course=id).first()
 
             try:
-                Termin.objects.create(name=name,repeted=repeted,time_start=time_start,
-                                        time_end=time_end,date=date,
-                                        weekday=weekday,max_points=max_points,
-                                        type=type, id_course=course_instance,
-                                        id_classroom=classroom_instance, description=description,capacita=capacita,auto_register=auto_register)
+                Termin.objects.create(name=name,
+                                        repeted=repeted,
+                                        time_start=time_start,
+                                        time_end=time_end,
+                                        date=date,
+                                        weekday=weekday,
+                                        max_points=max_points,
+                                        type=type,
+                                        id_course=course_instance,
+                                        id_classroom=classroom_instance,
+                                        description=description,
+                                        capacita=capacita,
+                                        auto_regist=auto_register)
+                return HttpResponse('ok')
             except:
-                print("error create course")    
+                print("error create course")
+                return HttpResponse(status=500)
 
-            return HttpResponse('ok')
 
         except:
             return HttpResponse(status=500)

@@ -21,8 +21,8 @@ const AddTerminModal = ({isModalOpen, setModalOpen, sideEffectOnChange}) => {
         if (e.target.description) data.description = e.target.description.value;
         if (e.target.time_start) data.time_start = e.target.time_start.value;
         if (e.target.time_end) data.time_end = e.target.time_end.value;
-        if (e.target.max_points) data.max_points = e.target.max_points.value;
-        if (e.target.capacita) data.capacita = e.target.capacita.value;
+        if (e.target.max_points) data.max_points = parseInt(e.target.max_points.value);
+        if (e.target.capacita) data.capacita = parseInt(e.target.capacita.value);
         if (e.target.repeted) data.repeted = e.target.repeted.value === 'true';
         if (e.target.auto_register) data.auto_register = e.target.auto_register.value === 'true';
         if (e.target.type) data.type = e.target.type.value;
@@ -63,7 +63,6 @@ const AddTerminModal = ({isModalOpen, setModalOpen, sideEffectOnChange}) => {
             setClassroomsLoading(false)
         })
     }, [])
-
     return (
         <>
         <ToastContainer/>
@@ -94,13 +93,18 @@ const AddTerminModal = ({isModalOpen, setModalOpen, sideEffectOnChange}) => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
+                        <Form.Label>Date</Form.Label>
+                        <Form.Control type="text" name='date' placeholder="YYYY-MM-DD"/>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
                         <Form.Label>Max points</Form.Label>
-                        <Form.Control type="number" max={100} name='max_points' placeholder="13:00:00"/>
+                        <Form.Control type="number" max={100} name='max_points' placeholder="30"/>
                     </Form.Group>
 
                     <Form.Group className="mb-3">
                         <Form.Label>Capacity</Form.Label>
-                        <Form.Control type="number" max={1000} name='capacita' placeholder="13:00:00"/>
+                        <Form.Control type="number" max={1000} name='capacita' placeholder="500"/>
                     </Form.Group>
 
                     <Form.Group className="mb-3">
@@ -142,7 +146,7 @@ const AddTerminModal = ({isModalOpen, setModalOpen, sideEffectOnChange}) => {
                         :
                         <Form.Select name='classroom_id'>
                             {classrooms.map(el => {
-                                <option value={el.id_classroom} key={el.name}>{el.name}</option>
+                                return (<option value={el.id_classroom} key={el.name}>{el.name}</option>)
                             })}
                         </Form.Select>
                         }
