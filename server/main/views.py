@@ -76,6 +76,8 @@ def get_users_in_course(request, id):
 
 def get_course_by_id(request, id):
     course = Course.objects.filter(id_course=id).values()[0]
+    course['lectors'] = list(Teacher_Course.objects.filter(id_course=id).values())
+    course['garant'] = list(Person.objects.filter(id_person=course['garant_id']).values())[0]
     return JsonResponse(course, safe = False)
 
 def get_logged_user(request):
@@ -236,9 +238,10 @@ def check_room_time(classroom,time_start,time_end,date):
         
 
 @csrf_exempt
-def create_termin(request, id):
+def create_termin_for_course(request, id):
     if request.method == 'POST':
         try:
+            user = authorize_by_request(request=request)
             active_person = Person.objects.filter(user=request.user).first()
             if active_person.is_garant == False:
                 return HttpResponse(status=500)
@@ -252,7 +255,7 @@ def create_termin(request, id):
             date = json_data['date']  
             weekday = json_data['weekday'] 
             max_points = json_data['max_points'] 
-            classroom = json_data['classroom'] 
+            classroom = json_data['classroom_id'] 
             type = json_data['type']
             description = json_data['description']
             
@@ -260,7 +263,7 @@ def create_termin(request, id):
             
             capacita = json_data['capacita']
 
-            classroom_instance = Classrooms.objects.filter(name=classroom).first()
+            classroom_instance = Classrooms.objects.filter(id_classroom=classroom).first()
             course_instance = Course.objects.filter(id_course=id).first()
 
             try:
@@ -293,6 +296,15 @@ def get_points_for_all_termins(request, id_person, id_course):
         termin_points.append(item)
     return JsonResponse(termin_points, safe = False)
 
+def add_points_to_user(request, id_person, id_termin):
+    json_data = json.loads(request.body)
+    points = json_data['points'] 
+    max_points = Termin.objects.filter(id_termin=id_termin).values()[0]['max_points']
+    if points > max_points:
+        return HttpResponse(status=500)
+    User_Termin.objects.filter(id_student=id_person, id_termin=id_termin).update(points=points)
+
+
 def points_of_termin(request, id):
     termin_instance = Termin.objects.filter(id_termin=id).first()
     user_termin = list(User_Termin.objects.filter(id_termin=id).values())
@@ -323,13 +335,17 @@ def create_course(request):
             credits = json_data['credits']
             max_persons = json_data['max_persons']
             #garant = user
-
+            lectors = json_data.get('lectors_id')
+            
+            
             # user_instance = User.objects.filter(user=request.user).first()
             # person_instance = Person.objects.filter(user=user_instance).first()
             try:
                 Course.objects.create(abbrv=abbrv,title=title,description=description,
                                         credits=credits,max_persons=max_persons,
-                                        garant_id=active_person,approved=0)
+                                        garant=active_person,approved=0)
+                for item in lectors:
+                    add_lector_func(item, id)
             except:
                 print("error create course")
 
@@ -341,15 +357,25 @@ def create_course(request):
 
 #@login_required
 def get_course_user(request,id):
-    if request.user.is_authenticated:
-        student_course = list(Student_Course.objects.filter(id_student = id).values())
-        course_list = list()
-        for item in student_course:
-            course = Course.objects.filter(id_course = item['id_course_id']).values()[0]
-            course_list.append(course)
-        return JsonResponse(course_list, safe = False)
-    else:
-       return HttpResponse(status=500)
+    user = authorize_by_request(request=request)
+    student_course = list(Student_Course.objects.filter(id_student = id).values())
+    course_list = list()
+    for item in student_course:
+        course = Course.objects.filter(id_course = item['id_course_id']).values()[0]
+        course['lectors'] = list(Teacher_Course.objects.filter(id_course=item['id_course_id']).values())
+        course['garant'] = list(Person.objects.filter(id_person=course['garant_id']).values())[0]
+        termins = list(Termin.objects.filter(id_course=item['id_course_id']).values())
+        user_termins = list()
+        for i in termins:
+            termin_register = User_Termin.objects.filter(id_termin=i['id_termin'], id_student=id).values()
+            if len(termin_register)!=0:
+                user_termins.append(termin_register[0])
+                termins.remove(Termin.objects.filter(id_termin=i['id_termin']).values()[0])
+        course['registered_termins'] = user_termins
+        course['not_registered_termins'] = termins
+        course_list.append(course)
+    return JsonResponse(course_list, safe = False)
+
 
 
 def add_user_to_termin(request, id_person, id_termin):

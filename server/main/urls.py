@@ -12,10 +12,11 @@ urlpatterns = [
     path('logout',views.logout_user, name='logout'),
     path('register', views.register_user, name='register'),
     path('profile_edit/<int:id>', views.profile_edit, name='profile_edit'),
-    path('create-termin', views.create_termin, name='create-termin'),
+    path('create-termin-for-course/<int:id>', views.create_termin_for_course, name='create-termin-for-course'),
     path('get-termins-by-course-id/<int:id>', views.get_termins_by_course_id, name='get-termins-by-course-id'),
     path('get-points-for-all-termins/<int:id_person>/<int:id_course>', views.get_points_for_all_termins, name='get-points-for-all-termins'),
     path('points-of-termin/<int:id>', views.points_of_termin, name='points-of-termin'),
+    path('add-points-to-user/<int:id_person>/<int:id_termin>', views.add_points_to_user, name='add-points-to-user'),
 
     path('course-edit/<int:id>', views.course_edit, name='course_edit'),
     path('create-course',views.create_course, name='create_course'),
