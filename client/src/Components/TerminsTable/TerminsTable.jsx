@@ -5,6 +5,7 @@ import createRequest from '../../Services/CreateRequest';
 import LoadingIcon from '../LoadingIcon/LoadingIcon';
 import { LoggedUserContext } from '../../Context/LoggedUser';
 import EditTerminModal from '../EditTeminModal/EditTerminModal';
+import { toast , ToastContainer} from 'react-toastify';
 
 function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
@@ -15,8 +16,38 @@ function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
         setTerminToEdit(termin);
         setIsModalEditOpened(true)
     }
+
+    const unregisterUserFromTermin = (termin) => {
+        createRequest({
+            path: `/remove-user-from-termin/${loggedUser.id_person}/${termin.id_termin}`,
+            method: 'DELETE'
+        })
+        .then(res => {
+            toast.success('User was successfully unregistered')
+            onChangeSideEffect({...termin, registered: false})
+        })
+        .catch(err => {
+            console.error(err)
+            toast.error('Something went wrong')
+        })
+    }
+    const registerUserToTermin = (termin) => {
+        createRequest({
+            path: `/add-user-to-termin/${loggedUser.id_person}/${termin.id_termin}`,
+            method: 'PUT'
+        })
+        .then(res => {
+            toast.success('User was successfully registered')
+            onChangeSideEffect({...termin, registered: true})
+        })
+        .catch(err => {
+            console.error(err)
+            toast.error('Something went wrong')
+        })
+    }
     return (
         <>
+        <ToastContainer/>
         <div align='center'>
             <div className='terminsTableContainer'>
                 <Table bordered>
@@ -31,6 +62,7 @@ function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
                             {(loggedUser.role === 'a' || loggedUser.role === 'g') && <th style={{width: '50px'}}></th>}
                             {(loggedUser.role === 'a' || loggedUser.role === 'g') && <th style={{width: '50px'}}></th>}
                             {(loggedUser.role === 's') && <th style={{width: '50px'}}>Obtained points</th>}
+                            {(loggedUser.role === 's') && <th style={{width: '50px'}}>Register</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -44,7 +76,12 @@ function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
                                         <td>{el.max_points}</td>
                                         {(loggedUser.role === 'a' || loggedUser.role === 'g') && <td><a href="#" onClick={() => {editTermin(el)}}> Edit</a></td>}
                                         {(loggedUser.role === 'a' || loggedUser.role === 'g') && <td><a href={"/termins-users/" + el.id_termin}>Users</a></td>}
-                                        {(loggedUser.role === 's') && <th style={{width: '50px'}}> 0 </th>}
+                                        {(loggedUser.role === 's') && <td> {el.points} </td>}
+                                        {(loggedUser.role === 's') && <td> {el.registered ?
+                                            <a href='#' onClick={() => {unregisterUserFromTermin(el)}}> Unregister </a>
+                                            :
+                                            <a href='#' onClick={() => {registerUserToTermin(el)}}> Register</a>
+                                        } </td>}
                                     </tr>
                                 ))
                             }

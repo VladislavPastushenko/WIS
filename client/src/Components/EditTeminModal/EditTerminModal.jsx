@@ -9,7 +9,6 @@ import { LoggedUserContext } from '../../Context/LoggedUser';
 import LoadingIcon from '../LoadingIcon/LoadingIcon';
 
 const EditTerminModal = ({isModalOpen, setModalOpen, sideEffectOnChange, termin}) => {
-    console.log(termin)
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
     const [classrooms, setClassrooms] = useState([])
     const [classroomsLoading, setClassroomsLoading] = useState(true)

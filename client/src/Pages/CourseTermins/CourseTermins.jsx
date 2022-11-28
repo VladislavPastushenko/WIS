@@ -17,29 +17,35 @@ const CourseTermins = () => {
 
     useEffect(()=> {
         setIsLoading(true);
+        if (loggedUser.id_person) {
+            const path = loggedUser.role === 's' ?
+            '/get-courses-by-user-id/' + loggedUser.id_person :
+            '/get-termins-by-course-id/' + id
 
-        createRequest({
-            path: '/get-termins-by-course-id/' + id,
-            method: 'GET'
-        })
-        .then(res => res.json())
-        .then(res => {
-            console.log(res)
-            setIsLoading(false)
-            setTermins(res)
-        })
-        .catch(err => {
-            console.error(err)
-            setIsLoading(false)
-        })
-    }, [])
+            createRequest({
+                path: path,
+                method: 'GET'
+            })
+            .then(res => res.json())
+            .then(res => {
+                const termins = loggedUser.role === 's' ?
+                res.find(el => el.id_course === parseInt(id)).termins :
+                res
+                setIsLoading(false)
+                setTermins(termins)
+            })
+            .catch(err => {
+                console.error(err)
+                setIsLoading(false)
+            })
+        }
+    }, [loggedUser])
 
     const onAddTermin = (newTermin) => {
         setTermins(prev => [...prev, newTermin])
     }
 
     const onChangeTermin = (editedTermin) => {
-        console.log(editedTermin)
         setTermins(prev => prev.map(el => editedTermin.id_termin === el.id_termin ? editedTermin : el))
     }
     return(

@@ -356,8 +356,7 @@ def create_course(request):
             max_persons = json_data['max_persons']
             #garant = user
             lectors = json_data.get('lectors_id')
-            
-            
+
             # user_instance = User.objects.filter(user=request.user).first()
             # person_instance = Person.objects.filter(user=user_instance).first()
             try:
@@ -385,30 +384,35 @@ def get_course_user(request,id):
         course['lectors'] = list(Teacher_Course.objects.filter(id_course=item['id_course_id']).values())
         course['garant'] = list(Person.objects.filter(id_person=course['garant_id']).values())[0]
         termins = list(Termin.objects.filter(id_course=item['id_course_id']).values())
-        user_termins = list()
+        course['termins'] = []
         for i in termins:
+            print(i['id_termin'])
             termin_register = User_Termin.objects.filter(id_termin=i['id_termin'], id_student=id).values()
-            if len(termin_register)!=0:
-                user_termins.append(termin_register[0])
-                termins.remove(Termin.objects.filter(id_termin=i['id_termin']).values()[0])
-        course['registered_termins'] = user_termins
-        course['not_registered_termins'] = termins
+            if len(termin_register) != 0:
+                course['termins'].append({**i, 'points': termin_register[0]['points'], 'registered': True})
+            else:
+                course['termins'].append({**i, 'points': 0, 'registered': False})
+
+
         course_list.append(course)
     return JsonResponse(course_list, safe = False)
 
 
-
+@csrf_exempt
 def add_user_to_termin(request, id_person, id_termin):
-    termin = Termin.objects.filter(id_termin=id_termin).first()
-    person = Person.objects.filter(id_person=id_person).first()
-    User_Termin.objects.create(id_student=person, id_termin=termin, points=0)
-    return HttpResponse('ok')
+    if request.method == 'PUT':
+        termin = Termin.objects.filter(id_termin=id_termin).first()
+        person = Person.objects.filter(id_person=id_person).first()
+        User_Termin.objects.create(id_student=person, id_termin=termin, points=0)
+        return HttpResponse('ok')
 
+@csrf_exempt
 def remove_user_from_termin(request, id_person, id_termin):
-    termin = Termin.objects.filter(id_termin=id_termin).first()
-    person = Person.objects.filter(id_person=id_person).first()
-    User_Termin.objects.filter(id_student=person, id_termin=termin).delete()
-    return HttpResponse('ok')
+    if request.method == 'DELETE':
+        termin = Termin.objects.filter(id_termin=id_termin).first()
+        person = Person.objects.filter(id_person=id_person).first()
+        User_Termin.objects.filter(id_student=person, id_termin=termin).delete()
+        return HttpResponse('ok')
 
 @csrf_exempt
 def add_user_to_course(request, id_person, id_course):
