@@ -306,13 +306,17 @@ def get_points_for_all_termins_by_course_id(request, id_person, id_course):
         termin_points.append(item)
     return JsonResponse(termin_points, safe = False)
 
+@csrf_exempt
 def add_points_to_user(request, id_person, id_termin):
-    json_data = json.loads(request.body)
-    points = json_data['points'] 
-    max_points = Termin.objects.filter(id_termin=id_termin).values()[0]['max_points']
-    if points > max_points:
-        return HttpResponse(status=500)
-    User_Termin.objects.filter(id_student=id_person, id_termin=id_termin).update(points=points)
+    if request.method == 'PUT':
+        json_data = json.loads(request.body)
+        points = json_data['points'] 
+        max_points = Termin.objects.filter(id_termin=id_termin).values()[0]['max_points']
+        if points > max_points:
+            return HttpResponse(status=500)
+        User_Termin.objects.filter(id_student=id_person, id_termin=id_termin).update(points=points)
+        return HttpResponse('ok')
+
 
 
 def points_of_termin(request, id):

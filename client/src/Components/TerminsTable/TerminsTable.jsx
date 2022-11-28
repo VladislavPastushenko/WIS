@@ -43,7 +43,7 @@ function TerminsTable({termins=[], repeated=false, onChangeSideEffect}) {
                                         {!repeated && <td>{el.date}</td>}
                                         <td>{el.max_points}</td>
                                         {(loggedUser.role === 'a' || loggedUser.role === 'g') && <td><a href="#" onClick={() => {editTermin(el)}}> Edit</a></td>}
-                                        {(loggedUser.role === 'a' || loggedUser.role === 'g') && <td><a href="#">Users</a></td>}
+                                        {(loggedUser.role === 'a' || loggedUser.role === 'g') && <td><a href={"/termins-users/" + el.id_termin}>Users</a></td>}
                                         {(loggedUser.role === 's') && <th style={{width: '50px'}}> 0 </th>}
                                     </tr>
                                 ))
