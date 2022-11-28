@@ -312,6 +312,10 @@ def get_points_for_all_termins_by_course_id(request, id_person, id_course):
 @csrf_exempt
 def add_points_to_user(request, id_person, id_termin):
     if request.method == 'PUT':
+        authorize_by_request(request=request)
+        user = Person.objects.filter(user=request.user).first()
+        if user.is_lektor == False:
+            return HttpResponse(status=500)
         json_data = json.loads(request.body)
         points = json_data['points'] 
         max_points = Termin.objects.filter(id_termin=id_termin).values()[0]['max_points']
@@ -407,7 +411,7 @@ def remove_user_from_termin(request, id_person, id_termin):
     return HttpResponse('ok')
 
 def add_user_to_course(request, id_person, id_course):
-    # if request.method == 'POST':
+    if request.method == 'PUT':
         course = Course.objects.filter(id_course=id_course).first()
         person = Person.objects.filter(id_person=id_person).first()
         Student_Course.objects.create(id_student=person, id_course=course)
@@ -419,7 +423,7 @@ def add_user_to_course(request, id_person, id_course):
         return HttpResponse('ok')
 
 def remove_user_from_course(request, id_person, id_course):
-    # if request.method == 'POST':
+    if request.method == 'DELETE':
         course = Course.objects.filter(id_course=id_course).first()
         person = Person.objects.filter(id_person=id_person).first()
         Student_Course.objects.filter(id_student=person,id_course=course).delete()
@@ -429,40 +433,42 @@ def remove_user_from_course(request, id_person, id_course):
         return HttpResponse('ok')
     
 def remove_user(request,id_persone):
-    try:
-        Course.objects.filter(garant_id=id_persone).update(garant_id = '')
+    if request.method == 'DELETE':
+        try:
+            Course.objects.filter(garant_id=id_persone).update(garant_id = '')
+            
+            teacher_course_list = list(Teacher_Course.objects.filter(id_teacher=id_persone).all())
+            student_course_list = list(Student_Course.objects.filter(id_student=id_persone).all())
+            user_termin_list = list(User_Termin.objects.filter(id_student=id_persone).all())
+
+            for item in teacher_course_list: item.delete()
+            for item in student_course_list: item.delete()
+            for item in user_termin_list: item.delete()
+
+            User.objects.filter(id_persone=id_persone).delete()
+            Person.objects.filter(id_persone=id_persone).delete()
+            return HttpResponse('ok')
         
-        teacher_course_list = list(Teacher_Course.objects.filter(id_teacher=id_persone).all())
-        student_course_list = list(Student_Course.objects.filter(id_student=id_persone).all())
-        user_termin_list = list(User_Termin.objects.filter(id_student=id_persone).all())
-
-        for item in teacher_course_list: item.delete()
-        for item in student_course_list: item.delete()
-        for item in user_termin_list: item.delete()
-
-        User.objects.filter(id_persone=id_persone).delete()
-        Person.objects.filter(id_persone=id_persone).delete()
-        return HttpResponse('ok')
-    
-    except:
-        return HttpResponse('error')
+        except:
+            return HttpResponse('error')
  
 def remove_course(request,id_course):
-    try:
-        termin_list = list(Termin.objects.filter(id_course=id_course).all())
-        student_course_list = list(Student_Course.objects.filter(id_course=id_course).all())
-        teacher_course_list = list(Teacher_Course.objects.filter(id_course=id_course).all())
-        
-        for item in termin_list: item.delete()
-        for item in student_course_list: item.delete()
-        for item in teacher_course_list: item.delete()
+    if request.method == 'DELETE':
+        try:
+            termin_list = list(Termin.objects.filter(id_course=id_course).all())
+            student_course_list = list(Student_Course.objects.filter(id_course=id_course).all())
+            teacher_course_list = list(Teacher_Course.objects.filter(id_course=id_course).all())
+            
+            for item in termin_list: item.delete()
+            for item in student_course_list: item.delete()
+            for item in teacher_course_list: item.delete()
 
-        
-        Course.objects.filter(id_course=id_course).delete()
-        return HttpResponse('ok')   
+            
+            Course.objects.filter(id_course=id_course).delete()
+            return HttpResponse('ok')   
 
-    except:
-        return HttpResponse('error')
+        except:
+            return HttpResponse('error')
 
 @csrf_exempt
 def update_termin(request,id_termin):
@@ -568,7 +574,7 @@ def add_lector_to_course(request):
 
 @csrf_exempt   
 def delete_lector_course(request):
-    if request.method == "POST":
+    if request.method == 'DELETE':
 
         json_data = json.loads(request.body)
 
