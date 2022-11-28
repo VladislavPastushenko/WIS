@@ -28,9 +28,9 @@ urlpatterns = [
     path('get-logged-user', views.get_logged_user, name='get-logged-user'),
 
     path('add-user-to-course/<int:id_person>/<int:id_course>', views.add_user_to_course, name='add-user-to-course'),
-    path('remove-user-from-course/<int:id_person>/<int:id_course>', views.remote_user_from_course, name='remove-user-from-course'),
+    path('remove-user-from-course/<int:id_person>/<int:id_course>', views.remove_user_from_course, name='remove-user-from-course'),
     path('add-user-to-termin/<int:id_person>/<int:id_termin>', views.add_user_to_termin, name='add-user-to-termin'),
-    path('remote-user-from-termin/<int:id_person>/<int:id_termin>', views.remote_user_from_termin, name='remote-user-from-termin'),
+    path('remove-user-from-termin/<int:id_person>/<int:id_termin>', views.remove_user_from_termin, name='remove-user-from-termin'),
     
     path('remove-user/<int:id_persone>',views.remove_user,name='remove-user'),
     path('remove-course/<int:id_course>',views.remove_course,name='remove-course'),

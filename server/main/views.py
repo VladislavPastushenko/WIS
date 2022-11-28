@@ -391,7 +391,7 @@ def add_user_to_termin(request, id_person, id_termin):
     User_Termin.objects.create(id_student=person, id_termin=termin, points=0)
     return HttpResponse('ok')
 
-def remote_user_from_termin(request, id_person, id_termin):
+def remove_user_from_termin(request, id_person, id_termin):
     termin = Termin.objects.filter(id_termin=id_termin).first()
     person = Person.objects.filter(id_person=id_person).first()
     User_Termin.objects.filter(id_student=person, id_termin=termin).delete()
@@ -409,7 +409,7 @@ def add_user_to_course(request, id_person, id_course):
                 User_Termin.objects.create(id_student=person, id_termin=termin, points=0)
         return HttpResponse('ok')
 
-def remote_user_from_course(request, id_person, id_course):
+def remove_user_from_course(request, id_person, id_course):
     # if request.method == 'POST':
         course = Course.objects.filter(id_course=id_course).first()
         person = Person.objects.filter(id_person=id_person).first()
