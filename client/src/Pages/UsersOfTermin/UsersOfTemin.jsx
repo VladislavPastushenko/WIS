@@ -52,13 +52,14 @@ const UsersOfTermin = ( ) => {
 
     if (areUsersDownloading)
     return (
-        <div>
+        <div className='text-center'>
             <LoadingIcon/>
         </div>
     )
     else return (
         <>
             <ToastContainer/>
+            {users.length > 0 ?
             <Table bordered>
                 <thead className='bg-info'>
                     <tr  style={{borderRadius: '10px'}}>
@@ -92,6 +93,11 @@ const UsersOfTermin = ( ) => {
                         }
                 </tbody>
             </Table>
+            :
+            <div className='text-center'>
+                No registered users
+            </div>
+            }
         </>
     )
 }
