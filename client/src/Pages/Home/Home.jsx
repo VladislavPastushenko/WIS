@@ -9,7 +9,7 @@ import { toast , ToastContainer} from 'react-toastify';
 function Home() {
     const [courses, setCourses] = useState([])
     const [isLoading, setIsLoading] = useState(true)
-    const [isLoadingRegistered, setIsLoadingRegistered] = useState(false)
+    const [isLoadingRegistered, setIsLoadingRegistered] = useState(true)
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
 
 
@@ -38,7 +38,7 @@ function Home() {
         if (loggedUser && loggedUser.role === 's') {
             setIsLoadingRegistered(true);
 
-            if (loggedUser.id_person)
+            if (loggedUser.id_person && !isLoading)
             createRequest({
                 path: '/get-courses-by-user-id/' + loggedUser.id_person,
                 method: 'GET'
@@ -56,9 +56,9 @@ function Home() {
                 console.error(err)
                 setIsLoadingRegistered(false)
             })
-
         }
-    }, [loggedUser])
+        else setIsLoadingRegistered(false)
+    }, [loggedUser, isLoading])
 
     const register = (course) => {
         createRequest({
@@ -70,7 +70,7 @@ function Home() {
             setCourses(prev => prev.map(el => el.id_course === course.id_course ?
                 {...el, registered: true}
                 :
-                {...el, registered: false}
+                el
             ))
         })
         .catch(err => {
@@ -90,7 +90,7 @@ function Home() {
             setCourses(prev => prev.map(el => el.id_course === course.id_course ?
                 {...el, registered: false}
                 :
-                {...el, registered: true}
+                el
             ))
         })
         .catch(err => {
@@ -120,7 +120,7 @@ function Home() {
                     <tbody>
                         {isLoading || isLoadingRegistered ?
                             <tr>
-                                <td colSpan={4} className={'text-center'}><LoadingIcon/></td>
+                                <td colSpan={5} className={'text-center'}><LoadingIcon/></td>
                             </tr>
                             :
                             courses.map((el, idx) => {

@@ -410,6 +410,7 @@ def remove_user_from_termin(request, id_person, id_termin):
     User_Termin.objects.filter(id_student=person, id_termin=termin).delete()
     return HttpResponse('ok')
 
+@csrf_exempt
 def add_user_to_course(request, id_person, id_course):
     if request.method == 'PUT':
         course = Course.objects.filter(id_course=id_course).first()
@@ -422,6 +423,7 @@ def add_user_to_course(request, id_person, id_course):
                 User_Termin.objects.create(id_student=person, id_termin=termin, points=0)
         return HttpResponse('ok')
 
+@csrf_exempt
 def remove_user_from_course(request, id_person, id_course):
     if request.method == 'DELETE':
         course = Course.objects.filter(id_course=id_course).first()
