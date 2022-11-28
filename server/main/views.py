@@ -295,10 +295,13 @@ def get_termins_by_course_id(request, id):
 def get_points_for_all_termins_by_course_id(request, id_person, id_course):
     course_instance = Course.objects.filter(id_course=id_course).first()
     termins = list(Termin.objects.filter(id_course=course_instance).values())
-    person_instance = Person.objects.filter(id_person=id_person)
+    email = Person.objects.filter(id_person=id_person).first().email
+    username = User.objects.filter(email=email).values()[0]['username']
+    
     termin_points = list()
     for item in termins:
         termin = User_Termin.objects.filter(id_student=id_person,id_termin = item['id_termin']).values()
+        item['username'] = username
         if len(termin) != 0:
             item['points'] = termin[0]
         else:
