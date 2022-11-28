@@ -83,7 +83,7 @@ const ManageAllCourses = () => {
                     <tbody>
                         {isLoading ?
                             <tr>
-                                <td colSpan={5} className={'text-center'}><LoadingIcon/></td>
+                                <td colSpan={6} className={'text-center'}><LoadingIcon/></td>
                             </tr>
                             :
                             courses.map((el, idx) => {
