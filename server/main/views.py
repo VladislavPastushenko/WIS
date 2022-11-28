@@ -442,6 +442,11 @@ def remove_user_from_course(request, id_person, id_course):
 def remove_user(request,id_persone):
     if request.method == 'DELETE':
         try:
+            authorize_by_request(request=request)
+            user = Person.objects.filter(user=request.user).first()
+            if user.is_admin == False:
+                return HttpResponse(status=403)
+
             Course.objects.filter(garant_id=id_persone).update(garant_id = '')
             teacher_course_list = list(Teacher_Course.objects.filter(id_teacher=id_persone).all())
             student_course_list = list(Student_Course.objects.filter(id_student=id_persone).all())
@@ -451,12 +456,13 @@ def remove_user(request,id_persone):
             for item in student_course_list: item.delete()
             for item in user_termin_list: item.delete()
 
-            User.objects.filter(id_persone=id_persone).delete()
+            person = Person.objects.filter(id_persone=id_persone).first()
+            User.objects.filter(email=person.email).delete()
             Person.objects.filter(id_persone=id_persone).delete()
             return HttpResponse('ok')
 
         except:
-            return HttpResponse('error')
+            return HttpResponse(status=500)
 
 @csrf_exempt
 def remove_course(request,id_course):
@@ -475,7 +481,22 @@ def remove_course(request,id_course):
             return HttpResponse('ok')
 
         except:
-            return HttpResponse('error')
+            return HttpResponse(status=500)
+
+
+@csrf_exempt
+def remove_termin(request,id_termin):
+    if request.method == 'DELETE':
+        try:
+            users_on_termin = User_Termin.objects.filter(id_termin=id_termin).all()
+            for item in users_on_termin: item.delete()
+
+            Termin.objects.filter(id_termin=id_termin).delete()
+            return HttpResponse('ok')
+
+        except:
+            return HttpResponse(status=500)
+
 
 @csrf_exempt
 def update_termin(request,id_termin):
@@ -531,6 +552,11 @@ def get_classrooms(request):
 @csrf_exempt
 def add_room(request):
     if request.method == 'POST':
+        authorize_by_request(request=request)
+        user = Person.objects.filter(user=request.user).first()
+        if user.is_admin == False:
+            return HttpResponse(status=403)
+            
         json_data = json.loads(request.body)
 
         name = json_data['name']
@@ -545,12 +571,21 @@ def add_room(request):
 
         return HttpResponse('ok')
     
-    return HttpResponse('error')
+    return HttpResponse(status=500)
 
 @csrf_exempt
 def delete_room(request,id_room):
     try:
-        Classrooms.objects.filter(id_classroom=id_room).delete()
+        authorize_by_request(request=request)
+        user = Person.objects.filter(user=request.user).first()
+        if user.is_admin == False:
+            return HttpResponse(status=403)
+        room = Classrooms.objects.filter(id_classroom=id_room).first()
+        termins = Termin.objects.filter(id_classroom=room).values()
+        if (len(termins)!=0):
+            return HttpResponse(status=500)
+        
+
         return HttpResponse('ok')
     except:
          return HttpResponse(status=500)
@@ -587,7 +622,6 @@ def delete_lector_course(request):
 
         id_person = json_data['id_person']
         id_course = json_data['id_course']
-
         try:
             Teacher_Course.objects.filter(id_teacher=id_person,id_course=id_course).delete()
             return HttpResponse('ok')
