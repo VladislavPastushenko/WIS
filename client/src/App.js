@@ -17,6 +17,7 @@ import Courses from "./Pages/Courses/Courses";
 import CourseTermins from "./Pages/CourseTermins/CourseTermins";
 import UsersOfTermin from "./Pages/UsersOfTermin/UsersOfTemin";
 import CourseDetails from "./Pages/CourseDetails/CourseDetails";
+import Rooms from "./Pages/Rooms/Rooms";
 
 export default function App() {
   const [loggedUser, setLoggedUser] = useState(loggedUserDefault)
@@ -48,6 +49,8 @@ export default function App() {
             <Route path="/my-profile" element={<MyProfile />}/>
             <Route path="/courses" element={<Courses />}/>
             <Route path="/course/:id" element={<CourseDetails />}/>
+
+            <Route path="/rooms" element={<Rooms />}/>
 
             {/* {loggedUser.role === 'a' && */}
             <>

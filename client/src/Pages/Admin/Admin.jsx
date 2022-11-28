@@ -4,8 +4,12 @@ const Admin = () => {
             <h2>
                 Admin panel
             </h2>
-
-            <a href='/user-list' className="fs-5"> User list </a>
+            <div>
+                <a href='/user-list' className="fs-5"> User list </a>
+            </div>
+            <div>
+                <a href='/rooms' className="fs-5"> Rooms list </a>
+            </div>
         </div>
     )
 }

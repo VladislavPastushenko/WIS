@@ -547,6 +547,7 @@ def add_room(request):
     
     return HttpResponse('error')
 
+@csrf_exempt
 def delete_room(request,id_room):
     try:
         Classrooms.objects.filter(id_classroom=id_room).delete()
