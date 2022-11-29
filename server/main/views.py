@@ -103,7 +103,6 @@ def register_user(request):
             user_instance = User.objects.create_user(username=username, email=email, password=password)
             user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='s')
 
-            print(username)
             if user is not None:
                 return HttpResponse('ok')
             else:
@@ -253,7 +252,6 @@ def create_termin_for_course(request, id):
             if active_person.is_garant == False:
                 return HttpResponse(status=500)
             json_data = json.loads(request.body)
-            print(json_data)
             name = json_data.get('name')
             repeted = json_data.get('repeted')
             time_start = json_data.get('time_start')
@@ -286,7 +284,6 @@ def create_termin_for_course(request, id):
                                         auto_regist=auto_register)
                 return HttpResponse('ok')
             except:
-                print("error create course")
                 return HttpResponse(status=500)
 
 
@@ -372,7 +369,7 @@ def create_course(request):
                 for item in lectors:
                     add_lector_func(item, id)
             except:
-                print("error create course")
+                return HttpResponse(status=500)
 
             return HttpResponse('ok')
 
@@ -392,7 +389,6 @@ def get_course_user(request,id):
         termins = list(Termin.objects.filter(id_course=item['id_course_id']).values())
         course['termins'] = []
         for i in termins:
-            print(i['id_termin'])
             termin_register = User_Termin.objects.filter(id_termin=i['id_termin'], id_student=id).values()
             if len(termin_register) != 0:
                 course['termins'].append({**i, 'points': termin_register[0]['points'], 'registered': True})
