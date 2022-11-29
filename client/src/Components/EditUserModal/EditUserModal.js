@@ -12,15 +12,15 @@ const EditUserModal = ({isModalOpen, setModalOpen, user, sideEffectOnChange}) =>
         e.preventDefault()
 
         // if (e.target.password.value === e.target.passwordRepeat.value) {
-        const data = {
-            ...user,
-        }
+        const data = {}
+        if (e.target.username) data.username = e.target.username.value;
         if (e.target.firstname) data.firstname = e.target.firstname.value;
         if (e.target.surname) data.surname = e.target.surname.value;
         if (e.target.email) data.email = e.target.email.value;
         if (e.target.address) data.address = e.target.address.value;
         if (e.target.telephone) data.telephone = e.target.telephone.value;
         if (e.target.role) data.role = e.target.role.value;
+        if (e.target.password && e.target.password.value !== '') data.password = e.target.password.value;
 
         createRequest({
             path: '/profile_edit/' + user.id_person,
@@ -28,6 +28,15 @@ const EditUserModal = ({isModalOpen, setModalOpen, user, sideEffectOnChange}) =>
             body: JSON.stringify(data)
         })
         .then(res => {
+            if (loggedUser.id_person === user.id_person) {
+                let token = atob(localStorage.getItem('token')).split(' ')
+                if (e.target.username && e.target.username.value !== '') token[0] = e.target.username.value;
+                if (e.target.password && e.target.password.value !== '') token[1] = e.target.password.value;
+                console.log(token)
+                const newToken = btoa(token[0] + ' ' + token[1])
+                localStorage.setItem('token', newToken)
+            }
+
             if (sideEffectOnChange) sideEffectOnChange(data)
             toast.success('User was successfully edited')
             setModalOpen(false)
@@ -48,6 +57,10 @@ const EditUserModal = ({isModalOpen, setModalOpen, user, sideEffectOnChange}) =>
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={e => {onSubmit(e)}} id={'Edit' + user.username}>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Username</Form.Label>
+                        <Form.Control type="text" name='username' placeholder="xlogin00" defaultValue={user.username}/>
+                    </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>First Name</Form.Label>
                         <Form.Control type="text" name='firstname' placeholder="Name" defaultValue={user.firstname}/>
@@ -71,6 +84,11 @@ const EditUserModal = ({isModalOpen, setModalOpen, user, sideEffectOnChange}) =>
                     <Form.Group className="mb-3">
                         <Form.Label>Phone number</Form.Label>
                         <Form.Control type="text" name='telephone' placeholder="+420(777)777-777" defaultValue={user.telephone}/>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Password</Form.Label>
+                        <Form.Control type="password"  name='password' placeholder="Password"/>
                     </Form.Group>
 
                     {loggedUser.role === 'a' &&

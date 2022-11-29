@@ -4,6 +4,7 @@ import { LoggedUserContext } from "../../Context/LoggedUser";
 import ManageAllCourses from "./ManageAllCourses/ManageAllCourses";
 import ManageGarantedCourses from "./ManageGarantedCourses/ManageGarantedCourses";
 import MyCourses from "./MyCourses/MyCourses";
+import TeacherCourses from "./TeacherCourses/TeacherCorses";
 
 
 const Courses = () => {
@@ -20,13 +21,19 @@ const Courses = () => {
     return (<ManageAllCourses/>)
 
     if (loggedUser.role === 'g')
-    return (<ManageGarantedCourses/>)
+    return (
+        <>
+        <ManageGarantedCourses/>
+        <h2> Courses as a teacher</h2>
+        <TeacherCourses/>
+        </>
+    )
 
     if (loggedUser.role === 's')
     return (<MyCourses/>)
 
     if (loggedUser.role === 'l')
-    return (<MyCourses/>)
+    return (<TeacherCourses/>)
 }
 
 export default Courses

@@ -1,4 +1,3 @@
-import './TeacherCourses.scss'
 import Table from 'react-bootstrap/Table';
 import { useContext, useEffect, useState } from 'react';
 import createRequest from '../../../Services/CreateRequest';
@@ -12,9 +11,9 @@ const TeacherCourses = () => {
     const {loggedUser, setLoggedUser} = useContext(LoggedUserContext)
     useEffect(() => {
         setIsLoading(true);
-        if (loggedUser && loggedUser.role === 's' && loggedUser.id_person) {
+        if (loggedUser && loggedUser.id_person) {
             createRequest({
-                path: '/get-courses-by-user-id/' + loggedUser.id_person,
+                path: '/get-courses-by-teacher-id/' + loggedUser.id_person,
                 method: 'GET'
             })
             .then(res => res.json())
@@ -51,7 +50,7 @@ const TeacherCourses = () => {
                             :
                             courses.map((el, idx) => {
                                 return (
-                                    <tr key={el.abbrv}>
+                                    <tr key={el.abbrv + idx}>
                                         <td>{el.abbrv}</td>
                                         <td><a href={`/${el.aabrv}`}>{el.title}</a></td>
                                         <td>{el.credits}</td>

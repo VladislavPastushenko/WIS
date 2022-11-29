@@ -98,12 +98,12 @@ const EditTerminModal = ({isModalOpen, setModalOpen, sideEffectOnChange, termin}
 
                     <Form.Group className="mb-3">
                         <Form.Label>Max points</Form.Label>
-                        <Form.Control type="number" max={100} name='max_points' placeholder="30" defaultValue={termin.max_points}/>
+                        <Form.Control type="number" max={100} min={0} name='max_points' placeholder="30" defaultValue={termin.max_points}/>
                     </Form.Group>
 
                     <Form.Group className="mb-3">
                         <Form.Label>Capacity</Form.Label>
-                        <Form.Control type="number" max={1000} name='capacita' placeholder="500" defaultValue={termin.capacita}/>
+                        <Form.Control type="number" max={1000} min={0} name='capacita' placeholder="500" defaultValue={termin.capacita}/>
                     </Form.Group>
 
                     <Form.Group className="mb-3">
