@@ -103,7 +103,6 @@ def register_user(request):
             user_instance = User.objects.create_user(username=username, email=email, password=password)
             user = Person.objects.create(user=user_instance, firstname=firstName, surname=lastName, email=email, role='s')
 
-            print(username)
             if user is not None:
                 return HttpResponse('ok')
             else:
@@ -121,23 +120,29 @@ def profile_edit(request, id):
 
             user_instance = User.objects.filter(email=person_instance.email).first()
             username = json_data.get('username') if json_data.get('username') != None else user_instance.username
-            password = json_data.get('password') if json_data.get('password') != None else user_instance.password
+            password = json_data.get('password')
             firstname = json_data.get('firstname') if json_data.get('firstname') != None else person_instance.firstname
             firstname = json_data.get('firstname') if json_data.get('firstname') != None else person_instance.firstname
             surname = json_data.get('surname') if json_data.get('surname') != None else person_instance.surname
             address = json_data.get('address') if json_data.get('address') != None else person_instance.address
             email = json_data.get('email') if json_data.get('email') != None else person_instance.email
             telephone = json_data.get('telephone') if json_data.get('telephone') != None else person_instance.telephone
-            role = json_data.get('role') if json_data.get('role') != None else person_instance.role
+            role = json_data.get('role')
 
             active_person = Person.objects.filter(user=request.user).first()
             if role != None and active_person.is_admin == False:
                 return HttpResponse(status=500)
-            elif active_person.is_admin == False and person_instance.id_person != active_person.id_person:
+            elif active_person.is_admin == False and id != active_person.id_person:
                 return HttpResponse(status=500)
+            if password != None:
+                User.objects.filter(email=person_instance.email).update(username=username, email=email)
+                new_user =User.objects.filter(email=email).first()
+                new_user.set_password(password)
+                new_user.save()
+            else:
+                User.objects.filter(email=person_instance.email).update(username=username, email=email)
 
-            User.objects.filter(email=person_instance.email).update(username=username, email=email, password=password)
-
+            role = json_data.get('role') if json_data.get('role') != None else person_instance.role
             Person.objects.filter(id_person=person_instance.id_person).update(firstname=firstname,
                                                                               surname=surname,
                                                                               address=address,
@@ -185,9 +190,9 @@ def course_edit(request, id):
             lectors = json_data.get('lectors_id')
             garant = int(json_data.get('garant_id'))
             person_instance = Person.objects.filter(id_person=garant).first()
-            
+
+            Teacher_Course.objects.filter(id_course=id).delete()
             for item in lectors:
-                Teacher_Course.objects.filter(id_course=id).delete()
                 add_lector_func(item, id)
 
             Course.objects.filter(id_course=course_instance.id_course).update(abbrv=abbrv,
@@ -247,7 +252,6 @@ def create_termin_for_course(request, id):
             if active_person.is_garant == False:
                 return HttpResponse(status=500)
             json_data = json.loads(request.body)
-            print(json_data)
             name = json_data.get('name')
             repeted = json_data.get('repeted')
             time_start = json_data.get('time_start')
@@ -280,7 +284,6 @@ def create_termin_for_course(request, id):
                                         auto_regist=auto_register)
                 return HttpResponse('ok')
             except:
-                print("error create course")
                 return HttpResponse(status=500)
 
 
@@ -366,7 +369,7 @@ def create_course(request):
                 for item in lectors:
                     add_lector_func(item, id)
             except:
-                print("error create course")
+                return HttpResponse(status=500)
 
             return HttpResponse('ok')
 
@@ -386,7 +389,6 @@ def get_course_user(request,id):
         termins = list(Termin.objects.filter(id_course=item['id_course_id']).values())
         course['termins'] = []
         for i in termins:
-            print(i['id_termin'])
             termin_register = User_Termin.objects.filter(id_termin=i['id_termin'], id_student=id).values()
             if len(termin_register) != 0:
                 course['termins'].append({**i, 'points': termin_register[0]['points'], 'registered': True})
@@ -397,6 +399,16 @@ def get_course_user(request,id):
         course_list.append(course)
     return JsonResponse(course_list, safe = False)
 
+
+def get_course_teacher(request,id):
+    user = authorize_by_request(request=request)
+    teacher_course = list(Teacher_Course.objects.filter(id_teacher=id).values())
+    course_list = list()
+    for item in teacher_course:
+        course = Course.objects.filter(id_course = item['id_course_id']).values()[0]
+        course['garant'] = list(Person.objects.filter(id_person=course['garant_id']).values())[0]
+        course_list.append(course)
+    return JsonResponse(course_list, safe = False)
 
 @csrf_exempt
 def add_user_to_termin(request, id_person, id_termin):
@@ -446,19 +458,17 @@ def remove_user(request,id_persone):
             user = Person.objects.filter(user=request.user).first()
             if user.is_admin == False:
                 return HttpResponse(status=403)
-
-            Course.objects.filter(garant_id=id_persone).update(garant_id = '')
+            if (Course.objects.filter(garant_id=id_persone).values() != 0):
+                Course.objects.filter(garant_id=id_persone).update(garant_id = '')
             teacher_course_list = list(Teacher_Course.objects.filter(id_teacher=id_persone).all())
             student_course_list = list(Student_Course.objects.filter(id_student=id_persone).all())
             user_termin_list = list(User_Termin.objects.filter(id_student=id_persone).all())
-
             for item in teacher_course_list: item.delete()
             for item in student_course_list: item.delete()
             for item in user_termin_list: item.delete()
-
-            person = Person.objects.filter(id_persone=id_persone).first()
+            person = Person.objects.filter(id_person=id_persone).first()
             User.objects.filter(email=person.email).delete()
-            Person.objects.filter(id_persone=id_persone).delete()
+            Person.objects.filter(id_person=id_persone).delete()
             return HttpResponse('ok')
 
         except:
@@ -507,6 +517,7 @@ def update_termin(request,id_termin):
             termin_instance = Termin.objects.filter(id_termin=id_termin).first()
 
             name = json_data.get('name') if json_data.get('name') != None else termin_instance.name
+            capacita = json_data.get('capacita') if json_data.get('capacita') != None else termin_instance.capacita
             repeted = json_data.get('repeted') if json_data.get('repeted') != None else termin_instance.repeted 
             time_start = json_data.get('time_start') if json_data.get('time_start') != None else termin_instance.time_start 
             time_end = json_data.get('time_end') if json_data.get('time_end') != None else termin_instance.time_end 
@@ -531,7 +542,8 @@ def update_termin(request,id_termin):
                                             type=type,
                                             id_classroom=classroom_instance,
                                             description=description,
-                                            auto_regist=auto_regist
+                                            auto_regist=auto_regist,
+                                            capacita=capacita
                                             )
             except:
                 return HttpResponse(status=500)
@@ -585,7 +597,7 @@ def delete_room(request,id_room):
         if (len(termins)!=0):
             return HttpResponse(status=500)
         
-
+        Classrooms.objects.filter(id_classroom=id_room).delete()
         return HttpResponse('ok')
     except:
          return HttpResponse(status=500)

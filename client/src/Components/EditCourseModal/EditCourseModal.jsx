@@ -39,7 +39,7 @@ const EditCourseModal = ({isModalOpen, setModalOpen, course, sideEffectOnChange}
         if (!course) data.garant_id = parseInt(loggedUser.id_person)
 
         data.lectors_id = selectedTeachers.map(el => parseInt(el))
-
+        data.lectors = data.lectors_id.map(el => ({id_teacher_id: el})) 
 
         createRequest({
             path: course ? '/course-edit/' + course.id_course : '/create-course',

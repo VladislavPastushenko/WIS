@@ -3,8 +3,10 @@ import { toast , ToastContainer} from 'react-toastify';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import createRequest from "../../Services/CreateRequest";
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
+    const navigate = useNavigate();
     const onSubmit = (e) => {
         e.preventDefault()
 
@@ -24,6 +26,7 @@ const SignUp = () => {
             })
             .then(res => {
                 toast.success('User was successfully signed-up')
+                navigate('/login')
             })
             .catch(err => {
                 toast.error('Something went wrong')
